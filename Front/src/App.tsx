@@ -1,9 +1,28 @@
+import { useEffect, useState } from 'react';
+import { Header } from './components/Header';
+import { AuthLayout } from './components/AuthLayout';
+import { NoticeDialog, type Notice } from './components/NoticeDialog';
+import { SignInPage } from './pages/SignInPage';
+import { RegisterCard } from './features/auth/RegisterCard';
+import { RecoveryCard } from './features/auth/RecoveryCard';
+import './styles/login.css';
+import './styles/register.css';
+import './styles/auth-module.css';
+
+const sections: Record<string, string> = { Inicio: '/', Carta: '/carta', Promociones: '/promociones', Nosotros: '/nosotros', Locales: '/locales', Contacto: '/contacto', 'Pedir ahora': '/carta' };
 export default function App() {
-  return (
-    <main className="base-page" id="contenido">
-      <img className="base-logo" src="/images/logo.webp" alt="Leñas y Sabores — Pollos & Parrillas" width="2048" height="682" />
-      <h1>Leñas y Sabores</h1>
-      <p>Proyecto integrador</p>
-    </main>
-  )
+  const [route, setRoute] = useState(location.pathname.replace(/\/$/, '') || '/');
+  const [notice, setNotice] = useState<Notice | null>(null);
+  useEffect(() => { const pop = () => setRoute(location.pathname.replace(/\/$/, '') || '/'); window.addEventListener('popstate', pop); return () => window.removeEventListener('popstate', pop); }, []);
+  function navigate(path: string) { history.pushState(null, '', path); setRoute(path); window.scrollTo(0, 0); }
+  useEffect(() => { document.title = `${route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);
+  return <>
+    <a className="skip-link" href="#contenido">Saltar al contenido</a>
+    <Header activeSection="" onSection={section => { const path = sections[section]; if (path === '/') navigate('/'); else setNotice({ title: section, message: 'Esta sección estará disponible próximamente.' }); }} />
+    <div className="auth-preview-bar"><span>Vista previa de interfaces</span></div>
+    {route === '/registrarse' ? <AuthLayout registration><RegisterCard onLogin={() => navigate('/iniciar-sesion')} onLegal={kind => setNotice({ title: kind === 'terms' ? 'Términos y Condiciones' : 'Política de Privacidad', message: 'Contenido de referencia del prototipo. Los textos legales definitivos se incorporarán antes de habilitar el registro. En esta vista previa no se crean cuentas ni se envían datos.' })} /></AuthLayout>
+      : route === '/recuperar-contrasena' ? <AuthLayout><RecoveryCard onLogin={() => navigate('/iniciar-sesion')} /></AuthLayout>
+      : <SignInPage onHelp={action => navigate(action === 'register' ? '/registrarse' : '/recuperar-contrasena')} />}
+    <NoticeDialog notice={notice} onClose={() => setNotice(null)} />
+  </>;
 }
