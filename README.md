@@ -36,44 +36,4 @@ git pull --ff-only origin dev
 git switch -c feature/login
 ```
 
-Cambiar el nombre de la rama según el módulo asignado. Si la rama ya existe, usar `git switch nombre-de-rama`.
 
-## Organización del frontend
-
-- `src/App.tsx`: punto de composición de las futuras pantallas.
-- `src/main.tsx`: arranque e importación de estilos compartidos.
-- `src/styles/tokens.css`: fuentes y variables visuales.
-- `src/styles/global.css`: reglas globales y botón común.
-- `public/fonts/`: tipografías con sus licencias.
-- `public/images/logo.webp`: logo original.
-
-Al desarrollar un módulo, colocar sus componentes y estilos en `src/features/<modulo>/`. Reservar `src/components/` para componentes reutilizables y `src/services/` para futuras llamadas al backend. Las carpetas se crean cuando tengan contenido. Coordinar los cambios de `App.tsx`, dependencias y estilos globales para reducir conflictos.
-
-## Identidad visual
-
-Se conserva la identidad del repositorio [PaginaWebLYS](https://github.com/OblitasNietoKimber/PaginaWebLYS), referencia `feature/prototipo-visual` en el commit `ada4a837750b83e6ec6c3ebaada6e9690c00555b`.
-
-| Uso | Fuente o recurso |
-| --- | --- |
-| Texto e interfaces generales | DM Sans, respaldo Arial |
-| Frases manuscritas | Caveat |
-| Títulos destacados del inicio | Knewave |
-| Logo | `/images/logo.webp`, sin redibujar ni recolorear |
-| Favicon | Llama original `/favicon.svg` |
-
-El panel operativo anterior usaba Arial; puede conservarse dentro de ese módulo. Knewave y Caveat se aplican solo donde corresponde, no a todos los encabezados. Las tres fuentes se sirven localmente, sin Google Fonts.
-
-| Variable CSS | Valor original |
-| --- | --- |
-| `--red` | `#ed0000` |
-| `--button-red` | `#ce0014` |
-| `--muted` | `#5d7097` |
-| `--placeholder` | `#667795` |
-| `--input-border` | `#dce1ec` |
-| `--line` | `#adbbd4` |
-| `--focus` | `#24487d` |
-| `--home-cream` | `#fcf6ee` |
-| Texto / fondo | `#08080b` / `#fff` |
-| Radios de tarjetas / campos | `16px` / `8px` |
-
-Usar `var(--font-body)`, `var(--font-script)` y `var(--font-display)` para las tipografías. El botón `.primary-button` y el enlace `.text-link` mantienen las reglas comunes anteriores. Los estilos específicos de login, catálogo, caja, etc. se desarrollan en sus ramas. Las imágenes de productos y banners se incorporan con el módulo que las necesite.
