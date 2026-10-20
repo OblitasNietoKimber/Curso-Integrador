@@ -1,0 +1,13 @@
+/* Ajustes del módulo aislado; mantiene las clases y colores del diseño anterior. */
+.preview-addresses { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.preview-address { padding: 24px; min-width: 0; overflow-wrap: anywhere; }
+.preview-address h3 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.preview-address small { color: var(--red); font-size: 12px; }
+.preview-address .account-dialog-actions { flex-wrap: wrap; }
+.account-form .preview-checkbox { display: flex; align-items: center; gap: 12px; }
+.account-form .preview-checkbox input { width: 20px; min-height: 20px; }
+.account-dialog { max-height: calc(100dvh - 32px); overflow-y: auto; }
+.account-page .info-form-grid { min-width: 0; }
+.account-identity span { overflow-wrap: anywhere; }
+.account-content > .account-empty { margin-top: 20px; }
+@media (max-width: 700px) { .preview-addresses { grid-template-columns: minmax(0, 1fr); } }
