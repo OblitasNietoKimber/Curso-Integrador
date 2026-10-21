@@ -107,25 +107,25 @@ export function CatalogoInicio({ alNavegar }: { alNavegar: (ruta: string) => voi
                       <span key={line}>+ {line}</span>
                     ))}
                   </p>
-                  <div className="promotion-footer-row">
-                    <div className="promotion-price">
-                      <span>S/</span> {item.price}
-                      <sup>.90</sup>
-                    </div>
-                    <button
-                      type="button"
-                      className="promotion-add-button"
-                      onClick={e => {
-                        e.stopPropagation();
-                        agregar(item.id, 1);
-                      }}
-                      aria-label={`Añadir ${item.title} al carrito`}
-                    >
-                      <Icon name="cart" />
-                      <span>Añadir</span>
-                    </button>
+                  <div className="promotion-price">
+                    <span>S/</span> {item.price}
+                    <sup>.90</sup>
                   </div>
                 </div>
+                <button
+                  type="button"
+                  className="promotion-add-button"
+                  onClick={e => {
+                    e.stopPropagation();
+                    agregar(item.id, 1);
+                  }}
+                  aria-label={`Añadir ${item.title} al carrito`}
+                >
+                  <Icon name="cart" />
+                  <span>
+                    Añadir<span className="promotion-add-extra"> al carrito</span>
+                  </span>
+                </button>
               </div>
             ))}
           </div>

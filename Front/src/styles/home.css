@@ -65,23 +65,23 @@
 .home-promotions { background: #fff; }
 .home-script { font-family: Caveat, cursive; font-weight: 700; font-style: italic; color: var(--home-red); font-size: 1.35em; line-height: .95; }
 .promotion-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 14px; }
-.promotion-card { aspect-ratio: 2.43; align-self: stretch; color: white; border-color: #e6d0b8; }
-.promotion-copy { width: 48%; padding: 18px 24px; }
+.promotion-card { aspect-ratio: 2.43; align-self: stretch; color: white; border-color: #e6d0b8; position: relative; isolation: isolate; overflow: clip; }
+.promotion-copy { width: 48%; height: 100%; padding: 18px 24px; display: flex; flex-direction: column; align-items: flex-start; box-sizing: border-box; }
 .promotion-label { display: inline-block; border-radius: 24px; padding: 4px 18px; font-size: clamp(12px, .9vw, 17px); font-weight: 800; text-transform: uppercase; background: #fff; color: var(--home-red); white-space: nowrap; }
 .promotion-parrillera .promotion-label, .promotion-duo .promotion-label { background: var(--home-red); color: #fff; }
 .promotion-copy h3 { font-size: clamp(16px, 1.25vw, 24px); line-height: 1.1; margin: 10px 0 2px; }
 .promotion-copy p { font-size: clamp(14px, 1vw, 19px); line-height: 1.12; margin: 0; }
 .promotion-copy p span { display: block; }
-.promotion-price { font-size: clamp(36px, 3.8vw, 73px); line-height: 1.05; letter-spacing: -.055em; font-weight: 850; margin-top: 8px; white-space: nowrap; }
+.promotion-price { font-size: clamp(36px, 3.8vw, 73px); line-height: 1.05; letter-spacing: -.055em; font-weight: 850; margin-top: auto; margin-bottom: 0; white-space: nowrap; }
 .promotion-price > span { font-size: .42em; letter-spacing: -.02em; }
 .promotion-price sup { font-size: .45em; vertical-align: super; }
 .promotion-duo .promotion-copy { color: #16110b; }
 .promotion-duo .promotion-price { color: #e00000; }
-.promotion-footer-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
-.promotion-add-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: var(--home-red); color: #fff; border: 1.5px solid rgba(255, 255, 255, 0.7); border-radius: 9999px; padding: 6px 14px; font-size: clamp(12px, 0.85vw, 15px); font-weight: 750; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); transition: background-color 150ms, transform 150ms, box-shadow 150ms; white-space: nowrap; flex-shrink: 0; }
-.promotion-add-button:hover { background: #b50000; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
-.promotion-add-button:active { transform: translateY(1px); }
-.promotion-add-button svg { width: 16px; height: 16px; stroke-width: 2.2; }
+
+.promotion-add-button { position: absolute; right: 20px; bottom: 18px; z-index: 2; display: inline-flex; align-items: center; justify-content: center; gap: 7px; background: var(--home-red); color: #fff; border: 1.5px solid rgba(255, 255, 255, 0.7); border-radius: 9999px; padding: 8px 18px; font-size: clamp(12px, 0.9vw, 15px); font-weight: 750; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); transition: background-color 150ms, transform 150ms, box-shadow 150ms; white-space: nowrap; }
+.promotion-add-button:hover { background: #b50000; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45); }
+.promotion-add-button:active { transform: translateY(0); }
+.promotion-add-button svg { width: 17px; height: 17px; stroke-width: 2.2; }
 .promotion-duo .promotion-add-button { background: #e00000; border-color: rgba(224, 0, 0, 0.35); }
 .promotion-duo .promotion-add-button:hover { background: #b50000; }
 .footer-phrase::after { content: ''; display: block; height: 3px; width: 60%; margin: 5px auto; background: var(--home-red); transform: rotate(-6deg); }
@@ -101,7 +101,7 @@
 .footer-phrase { font-size: 23px; margin: 0; color: #fff; text-align: center; }
 .footer-bottom { border-top: 1px solid #555; display: flex; justify-content: space-between; gap: 16px; padding-block: 9px; }
 .peru-flag { display: inline-block; width: 21px; height: 13px; background: linear-gradient(to right,#e90000 33%,#fff 33%,#fff 66%,#e90000 66%); margin-left: 12px; }
-@media (max-width: 1450px) and (min-width: 1101px) { .home-header { padding-inline: 4%; gap: 20px; } .home-header .brand { width: 210px; } .home-header .desktop-nav { gap: 22px; } .promotion-copy { padding: 14px 18px; } .specialty-copy { padding: 15px; } }
+@media (max-width: 1450px) and (min-width: 1101px) { .home-header { padding-inline: 4%; gap: 20px; } .home-header .brand { width: 210px; } .home-header .desktop-nav { gap: 22px; } .promotion-copy { padding: 14px 18px; } .specialty-copy { padding: 15px; } .promotion-add-button { right: 14px; bottom: 14px; padding: 7px 14px; font-size: 13px; } .promotion-add-extra { display: none; } }
 @media (max-width: 1100px) {
   .home-header { padding-inline: 5%; }
   .home-header .desktop-nav, .home-header .header-divider, .home-header .order-button { display: none; }
@@ -135,7 +135,8 @@
   .promotion-label { font-size: 17px; }
   .promotion-copy h3 { font-size: 22px; }
   .promotion-copy p { font-size: 19px; }
-  .promotion-price { font-size: 64px; }
+  .promotion-price { font-size: 64px; margin-top: auto; margin-bottom: 0; }
+  .promotion-add-button { right: 24px; bottom: 20px; padding: 10px 22px; font-size: 16px; }
   .footer-main { grid-template-columns: 28% 1fr; gap: 12px; }
   .footer-contact, .footer-social { border-left: 0 !important; padding-left: 0 !important; }
   .footer-phrase { grid-column: 1/-1; border-left: 0 !important; }
@@ -199,10 +200,10 @@
   .promotion-label { font-size: clamp(10px, 2.6vw, 16px); padding: 2px 8px; }
   .promotion-copy h3 { font-size: clamp(12px, 3.3vw, 20px); margin: 5px 0 0; }
   .promotion-copy p { font-size: clamp(10px, 2.8vw, 16px); }
-  .promotion-price { font-size: clamp(25px, 7vw, 43px); margin-top: 2px; }
-  .promotion-footer-row { margin-top: 2px; gap: 6px; }
-  .promotion-add-button { padding: 3px 8px; font-size: clamp(9px, 2.2vw, 12px); }
+  .promotion-price { font-size: clamp(25px, 7vw, 43px); margin-top: auto; margin-bottom: 0; }
+  .promotion-add-button { position: absolute; right: 10px; bottom: 8px; padding: 4px 10px; font-size: clamp(9px, 2.2vw, 12px); gap: 4px; }
   .promotion-add-button svg { width: 12px; height: 12px; }
+  .promotion-add-extra { display: none; }
   .home-footer { font-size: 10px; }
   .footer-main { grid-template-columns: 28% 1fr; gap: 8px; padding-block: 12px; }
   .footer-main > * + * { padding-left: 10px; }
