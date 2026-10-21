@@ -13,9 +13,9 @@
 .promo-offer-card { position: relative; display: flex; flex-direction: column; min-width: 0; background: #fff; border-radius: 18px; box-shadow: 0 10px 24px #3018040b; overflow: hidden; }
 .promo-offer-photo { position: relative; aspect-ratio: 2.27; overflow: hidden; }
 .promo-offer-photo > img { width: 100%; height: 100%; object-fit: cover; }
-.promo-offer-badge { position: absolute; left: 16px; top: 14px; display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: clamp(10px, .85vw, 16px); border-radius: 28px; padding: 10px 16px; background: #ff9400; color: #14100b; }
+.promo-offer-badge { position: absolute; left: 12px; top: 12px; display: inline-flex; align-items: center; gap: 6px; font-weight: 750; font-size: clamp(9px, .7vw, 12px); letter-spacing: .03em; border-radius: 9999px; padding: 4px 10px; background: #ff9400; color: #14100b; box-shadow: 0 2px 8px #00000026; }
 .promo-offer-badge.red { background: #fff3ed; color: #d10000; }
-.promo-offer-badge svg { width: 23px; height: 23px; }
+.promo-offer-badge svg { width: 14px; height: 14px; }
 .promo-offer-info { flex: 1; display: flex; flex-direction: column; padding: 12px clamp(14px, 1.2vw, 24px) 20px; }
 .promo-offer-info h2 { font-size: clamp(18px, 1.4vw, 27px); font-weight: 800; margin: 0 0 5px; line-height: 1.2; letter-spacing: -.04em; }
 .promo-offer-description { font-size: clamp(13px, 1vw, 19px); color: #73706e; line-height: 1.45; margin: 0 0 12px; min-height: 2.9em; }
@@ -54,8 +54,8 @@
   .promo-offer-grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
   .promo-offer-card { border-radius: 13px; }
   .promo-offer-photo { aspect-ratio: 3.3; }
-  .promo-offer-badge { left: 8px; top: 8px; padding: 6px 10px; font-size: 10px; gap: 6px; }
-  .promo-offer-badge svg { width: 18px; height: 18px; }
+  .promo-offer-badge { left: 8px; top: 8px; padding: 3px 8px; font-size: 8.5px; gap: 4px; }
+  .promo-offer-badge svg { width: 11px; height: 11px; }
   .promo-offer-info { padding: 9px 11px 12px; }
   .promo-offer-info h2 { font-size: clamp(17px, 3.5vw, 23px); }
   .promo-offer-description { font-size: 12px; min-height: 0; line-height: 1.4; margin-bottom: 8px; }
