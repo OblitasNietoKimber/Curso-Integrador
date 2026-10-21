@@ -1,0 +1,359 @@
+/* Estilos de la Barra de Navegación y Navegación Inferior */
+
+.site-header {
+  border-bottom: 1px solid #e8ded5;
+  box-shadow: 0 3px 14px rgba(69, 44, 23, 0.06);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2vw, 36px);
+  height: 64px;
+  padding-inline: 4%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  width: clamp(170px, 16vw, 240px);
+  text-decoration: none;
+}
+
+.brand img {
+  width: 100%;
+  max-width: 240px;
+  height: 48px;
+  object-fit: contain;
+  display: block;
+}
+
+.desktop-nav {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(16px, 2.5vw, 36px);
+}
+
+.nav-link {
+  border: 0;
+  background: none;
+  font-size: clamp(15px, 1.1vw, 18px);
+  font-weight: 500;
+  color: #262626;
+  padding: 18px 0;
+  position: relative;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 180ms ease-out;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: var(--red, #ed0000);
+}
+
+.nav-link.active {
+  color: var(--red, #ed0000);
+  font-weight: 750;
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--red, #ed0000);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: auto;
+}
+
+.carta-header-search {
+  display: flex;
+  align-items: center;
+  width: clamp(160px, 15vw, 240px);
+  padding: 6px 12px;
+  gap: 8px;
+  border: 1px solid #dedee5;
+  background: #f8f8f9;
+  border-radius: 8px;
+}
+
+.carta-header-search input {
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  font-size: 13px;
+  outline: none;
+}
+
+.carta-header-search svg {
+  width: 18px;
+  height: 18px;
+  color: #888;
+}
+
+.carta-search-toggle {
+  display: none;
+  background: transparent;
+  border: 1px solid #dedee5;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.carta-cart-toggle {
+  position: relative;
+  background: transparent;
+  border: 1px solid #e8ded5;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms;
+}
+
+.carta-cart-toggle:hover {
+  background: #fff5f5;
+  border-color: var(--red, #ed0000);
+}
+
+.carta-cart-toggle svg {
+  width: 22px;
+  height: 22px;
+  color: #333;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--red, #ed0000);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid #fff;
+}
+
+.header-divider {
+  width: 1px;
+  height: 28px;
+  background: #e8ded5;
+}
+
+.order-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #fff;
+  background: var(--button-red, #ce0014);
+  border: 1.5px solid var(--button-red, #ce0014);
+  border-radius: 9px;
+  padding: 6px 18px;
+  min-height: 38px;
+  position: relative;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms, transform 150ms;
+}
+
+.order-button:hover {
+  background: #b80012;
+  border-color: #b80012;
+  transform: translateY(-1px);
+}
+
+.order-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.menu-toggle {
+  display: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #262626;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.menu-toggle svg {
+  width: 26px;
+  height: 26px;
+}
+
+/* Menú móvil desplegable */
+.mobile-nav {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .desktop-nav {
+    display: none;
+  }
+  .menu-toggle {
+    display: flex;
+  }
+  .carta-header-search {
+    display: none;
+  }
+  .carta-search-toggle {
+    display: flex;
+  }
+  .mobile-nav.open {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 16px;
+    top: calc(100% + 8px);
+    width: min(280px, calc(100vw - 32px));
+    padding: 12px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e8ded5;
+    z-index: 101;
+  }
+  .mobile-nav button {
+    text-align: left;
+    border: 0;
+    background: none;
+    padding: 12px 16px;
+    min-height: 44px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mobile-nav button.active {
+    color: var(--red, #ed0000);
+    font-weight: 700;
+    background: #fff5f5;
+  }
+  .mobile-nav button:hover {
+    background: #fdf2f2;
+  }
+}
+
+/* Barra inferior móvil */
+.carta-bottom-nav {
+  position: fixed;
+  z-index: 99;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: none;
+  grid-template-columns: repeat(4, 1fr);
+  background: #ffffff;
+  border-top: 1px solid #f0e6dc;
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 650px) {
+  .carta-bottom-nav {
+    display: grid;
+  }
+  .site-header {
+    height: 56px;
+  }
+  .brand img {
+    height: 40px;
+  }
+  .order-button,
+  .header-divider {
+    display: none;
+  }
+  #root, .home-footer {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom));
+  }
+}
+
+.carta-bottom-nav button {
+  border: 0;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 44px;
+  padding: 4px 0;
+  font-size: 11px;
+  color: #555;
+  cursor: pointer;
+  position: relative;
+}
+
+.carta-bottom-nav button.active {
+  color: var(--red, #ed0000);
+  font-weight: 700;
+}
+
+.carta-bottom-nav button.active::after {
+  content: '';
+  position: absolute;
+  width: 40%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--red, #ed0000);
+  bottom: 0;
+}
+
+.carta-bottom-nav svg {
+  width: 22px;
+  height: 22px;
+}
+
+.bottom-cart-badge {
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  background: var(--red, #ed0000);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
