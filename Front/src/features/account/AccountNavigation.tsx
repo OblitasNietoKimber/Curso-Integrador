@@ -1,3 +1,4 @@
+import { useSession } from "../../services/session";
 import { Icon } from "../../components/Icon";
 import { displayFirstName } from "../../services/displayName";
 import { useAccount } from "./accountStore";
@@ -24,6 +25,8 @@ export function AccountNavigation({
   onLogout: () => void;
 }) {
   const { profile } = useAccount();
+  const { user } = useSession();
+  const sections = user?.role === "cliente" ? accountSections : accountSections.filter(s => s.slug === "seguridad" || s.slug === "cerrar-sesion");
   const selected =
     accountSections.find((s) => s.slug === slug) || accountSections[0];
   const navigate = (value: string) =>
@@ -34,12 +37,12 @@ export function AccountNavigation({
         <div className="account-identity">
           <AccountAvatar />
           <div>
-            <strong>{displayFirstName(profile.name)}</strong>
-            <span>{profile.email}</span>
+            <strong>{displayFirstName(profile.name || user?.name || "")}</strong>
+            <span>{profile.email || user?.email}</span>
           </div>
         </div>
         <nav aria-label="Secciones de mi cuenta">
-          {accountSections.map((s) => (
+          {sections.map((s) => (
             <button
               type="button"
               key={s.slug}
@@ -61,7 +64,7 @@ export function AccountNavigation({
           value={slug}
           onChange={(e) => navigate(e.target.value)}
         >
-          {accountSections.map((s) => (
+          {sections.map((s) => (
             <option key={s.slug} value={s.slug}>
               {s.label}
             </option>

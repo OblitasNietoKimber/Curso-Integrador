@@ -9,16 +9,18 @@ import { AccountNotifications } from '../features/account/AccountNotifications';
 import { AccountDialog, AccountEmpty } from '../features/account/AccountShared';
 import { accountSections, accountPath } from '../features/account/accountSections';
 import { useAccount, useAccountFeedback } from '../features/account/accountStore';
-import { logout } from '../services/session';
+import { logout, useSession } from '../services/session';
 import { displayFirstName } from '../services/displayName';
 import '../styles/account.css';
 import '../styles/account-preview.css';
 export function AccountPage({ route, onNavigate }: { route: string; onNavigate: (path: string) => void }) {
   const { profile } = useAccount();
+  const { user } = useSession();
   const feedback = useAccountFeedback();
   const [logoutError, setLogoutError] = useState('');
   const section = accountSections.find(s => accountPath(s.slug) === route) || accountSections[0];
   const [leaving, setLeaving] = useState(false);
+  if (user && user.role !== 'cliente' && section.slug !== 'seguridad') return <main id="contenido" className="base-page"><h1>Cuenta de personal</h1><p>Tu sesión está activa. El perfil comercial de Mi cuenta es exclusivo de clientes.</p><button className="info-button" onClick={() => onNavigate('/mi-cuenta/seguridad')}>Seguridad de mi cuenta</button><button className="info-button" onClick={() => { void logout().then(() => onNavigate('/iniciar-sesion')).catch(error => setLogoutError(error.message)); }}>Cerrar sesión</button>{logoutError && <p role="alert">{logoutError}</p>}</main>;
   return <main id="contenido" className={`account-page account-section-${section.slug || 'inicio'}`}><div className="account-container">
     <nav className="account-breadcrumb" aria-label="Ruta actual"><button onClick={() => onNavigate('/')}>Inicio</button><span>›</span><button onClick={() => onNavigate('/mi-cuenta')}>Mi cuenta</button><span>›</span><span aria-current="page">{section.label}</span></nav>
     <p role="status">{feedback.saving ? 'Guardando cambios…' : ''}</p>{feedback.error && <p role="alert">{feedback.error}</p>}<div className="account-layout"><AccountNavigation slug={section.slug} onNavigate={onNavigate} onLogout={() => setLeaving(true)} /><div className="account-content" inert={feedback.saving}>

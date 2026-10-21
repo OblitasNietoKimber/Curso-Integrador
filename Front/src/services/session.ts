@@ -6,7 +6,7 @@ let state: { user: SessionUser | null; loading: boolean; error: string } = { use
 const listeners = new Set<() => void>();
 function publish(next: typeof state) { state = next; listeners.forEach(listener => listener()); }
 export function useSession() { return useSyncExternalStore(listener => { listeners.add(listener); return () => { listeners.delete(listener); }; }, () => state); }
-export async function acceptSession(user: SessionUser) { await loadAccount(); publish({ user, loading: false, error: '' }); }
+export async function acceptSession(user: SessionUser) { if (user.role === 'cliente') await loadAccount(); else clearAccount(); publish({ user, loading: false, error: '' }); }
 export async function refreshSession() {
   try { const user = await apiRequest<SessionUser>('/auth/me'); await acceptSession(user); }
   catch (error) { publish({ user: null, loading: false, error: error instanceof ApiError && error.status === 401 ? '' : 'No se pudo comprobar tu sesión. Inténtalo de nuevo.' }); }
