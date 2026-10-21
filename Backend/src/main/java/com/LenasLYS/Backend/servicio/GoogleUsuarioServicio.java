@@ -1,6 +1,9 @@
 package com.LenasLYS.Backend.servicio;
 
+import com.LenasLYS.Backend.modelo.Cliente;
 import com.LenasLYS.Backend.modelo.Usuario;
+import com.LenasLYS.Backend.repositorio.ClienteRepositorio;
+import com.LenasLYS.Backend.repositorio.RolRepositorio;
 import com.LenasLYS.Backend.repositorio.UsuarioRepositorio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -13,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class GoogleUsuarioServicio {
   private final UsuarioRepositorio usuarios;
+  private final ClienteRepositorio clientes;
+  private final RolRepositorio roles;
 
   @Transactional
   public Usuario obtenerOCrear(OidcUser identidad) {
@@ -41,10 +46,14 @@ public class GoogleUsuarioServicio {
         nombre == null || nombre.isBlank()
             ? "Cliente"
             : nombre.substring(0, Math.min(120, nombre.length())));
-    u.setTelefono("");
     u.setPasswordHash(null);
-    u.setRol(Usuario.Rol.CLIENTE);
-    return usuarios.saveAndFlush(u);
+    u.setRolAsignado(roles.findByNombre("CLIENTE").orElseThrow());
+    usuarios.saveAndFlush(u);
+    Cliente cliente = new Cliente();
+    cliente.setUsuario(u);
+    cliente.setNombre(u.getNombre());
+    clientes.saveAndFlush(cliente);
+    return u;
   }
 
   public static OAuth2AuthenticationException error(String code) {

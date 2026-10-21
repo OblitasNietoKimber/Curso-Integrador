@@ -1,7 +1,10 @@
 package com.LenasLYS.Backend.servicio;
 
 import com.LenasLYS.Backend.dto.AutenticacionDTO.*;
+import com.LenasLYS.Backend.modelo.Cliente;
 import com.LenasLYS.Backend.modelo.Usuario;
+import com.LenasLYS.Backend.repositorio.ClienteRepositorio;
+import com.LenasLYS.Backend.repositorio.RolRepositorio;
 import com.LenasLYS.Backend.repositorio.UsuarioRepositorio;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -18,6 +21,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class UsuarioServicio {
   private final UsuarioRepositorio usuarios;
   private final PasswordEncoder encoder;
+  private final ClienteRepositorio clientes;
+  private final RolRepositorio roles;
 
   public static String normalizar(String email) {
     return email.trim().toLowerCase(Locale.ROOT);
@@ -39,9 +44,15 @@ public class UsuarioServicio {
     Usuario u = new Usuario();
     u.setNombre(dto.name().trim());
     u.setEmail(email);
-    u.setTelefono(dto.phone());
+    u.setRolAsignado(roles.findByNombre("CLIENTE").orElseThrow());
     u.setPasswordHash(encoder.encode(dto.password()));
-    return usuarios.saveAndFlush(u);
+    usuarios.saveAndFlush(u);
+    Cliente cliente = new Cliente();
+    cliente.setUsuario(u);
+    cliente.setNombre(u.getNombre());
+    cliente.setTelefono(dto.phone());
+    clientes.saveAndFlush(cliente);
+    return u;
   }
 
   public Usuario actual(Authentication auth) {
@@ -64,7 +75,7 @@ public class UsuarioServicio {
         u.getId().toString(),
         u.getNombre(),
         u.getEmail(),
-        u.getTelefono(),
+        clientes.findByUsuarioId(u.getId()).map(Cliente::getTelefono).orElse(""),
         u.getRol().name().toLowerCase(Locale.ROOT));
   }
 

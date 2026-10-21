@@ -19,9 +19,6 @@ public class Usuario {
   @Column(nullable = false, unique = true, length = 254)
   private String email;
 
-  @Column(nullable = false, length = 25)
-  private String telefono;
-
   @Column(name = "password_hash", length = 100)
   private String passwordHash;
 
@@ -37,18 +34,19 @@ public class Usuario {
   @Column(name = "totp_recovery", columnDefinition = "text")
   private String totpRecovery;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false, length = 20)
-  private Rol rol = Rol.CLIENTE;
+  @ManyToOne(fetch = FetchType.EAGER, optional = false)
+  @JoinColumn(name = "id_rol", nullable = false)
+  private RolSistema rolAsignado;
+
+  public Rol getRol() {
+    return Rol.valueOf(rolAsignado.getNombre());
+  }
 
   @Column(nullable = false)
   private boolean activo = true;
 
   @Column(name = "version_sesion", nullable = false)
   private long versionSesion;
-
-  @Column(nullable = false, columnDefinition = "text")
-  private String cuenta = "{}";
 
   @Column(nullable = false)
   private Instant creado = Instant.now();

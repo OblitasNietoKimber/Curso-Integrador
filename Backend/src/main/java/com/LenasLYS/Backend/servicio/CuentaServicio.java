@@ -2,8 +2,8 @@ package com.LenasLYS.Backend.servicio;
 
 import com.LenasLYS.Backend.dto.CuentaDTO;
 import com.LenasLYS.Backend.dto.CuentaDTO.*;
-import com.LenasLYS.Backend.modelo.Usuario;
-import com.LenasLYS.Backend.repositorio.UsuarioRepositorio;
+import com.LenasLYS.Backend.modelo.*;
+import com.LenasLYS.Backend.repositorio.ClienteRepositorio;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -17,39 +17,59 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class CuentaServicio {
   private final UsuarioServicio usuarios;
-  private final UsuarioRepositorio repo;
+  private final ClienteRepositorio clientes;
   private final ObjectMapper json;
 
-  private Perfil perfil(Usuario u, Perfil p) {
-    return new Perfil(
-        p == null ? null : p.photo(),
-        u.getNombre(),
-        u.getEmail(),
-        u.getTelefono().replaceFirst("^\\+51(?=9[0-9]{8}$)", ""),
-        p == null ? "DNI" : p.documentType(),
-        p == null ? "" : p.document(),
-        p == null ? "" : p.birthday(),
-        p == null ? "" : p.gender(),
-        p == null ? "" : p.notes());
+  /** Los datos propios de una cuenta cliente, sin repetir el perfil ni el correo de acceso. */
+  public record PreferenciasCuenta(
+      List<Direccion> addresses,
+      List<Tarjeta> cards,
+      String preferredPayment,
+      Map<String, Boolean> preferences,
+      List<String> readNotifications) {}
+
+  private Cliente cliente(Usuario u) {
+    if (u.getRol() != Usuario.Rol.CLIENTE)
+      throw new ResponseStatusException(
+          HttpStatus.FORBIDDEN, "Este apartado es exclusivo de clientes.");
+    return clientes
+        .findByUsuarioId(u.getId())
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.CONFLICT, "La cuenta no tiene un perfil de cliente asociado."));
   }
 
-  private CuentaDTO leer(Usuario u) {
+  private Perfil perfil(Usuario u, Cliente c) {
+    return new Perfil(
+        c.getFoto(),
+        c.getNombre(),
+        u.getEmail(),
+        c.getTelefono().replaceFirst("^\\+51(?=9[0-9]{8}$)", ""),
+        c.getTipoDocumento(),
+        c.getDocumento(),
+        c.getFechaNacimiento(),
+        c.getGenero(),
+        c.getNotas());
+  }
+
+  private CuentaDTO leer(Usuario u, Cliente c) {
     try {
-      if (!u.getCuenta().equals("{}")) {
-        var c = json.readValue(u.getCuenta(), CuentaDTO.class);
+      if (!c.getCuenta().equals("{}")) {
+        var datos = json.readValue(c.getCuenta(), PreferenciasCuenta.class);
         return new CuentaDTO(
-            perfil(u, c.profile()),
-            c.addresses(),
-            c.cards(),
-            c.preferredPayment(),
-            c.preferences(),
-            c.readNotifications());
+            perfil(u, c),
+            datos.addresses(),
+            datos.cards(),
+            datos.preferredPayment(),
+            datos.preferences(),
+            datos.readNotifications());
       }
     } catch (Exception e) {
       throw new IllegalStateException("No se pudo leer la cuenta.", e);
     }
     return new CuentaDTO(
-        perfil(u, null),
+        perfil(u, c),
         List.of(),
         List.of(),
         "",
@@ -67,35 +87,52 @@ public class CuentaServicio {
         List.of());
   }
 
+  @Transactional(readOnly = true)
   public CuentaDTO obtener(Authentication auth) {
-    return leer(usuarios.actual(auth));
+    Usuario u = usuarios.actual(auth);
+    return leer(u, cliente(u));
   }
 
   @Transactional
-  public CuentaDTO guardar(Authentication auth, CuentaDTO c) {
+  public CuentaDTO guardar(Authentication auth, CuentaDTO cuenta) {
     Usuario u = usuarios.actual(auth);
-    if (!UsuarioServicio.normalizar(c.profile().email()).equals(u.getEmail()))
+    Cliente c = cliente(u);
+    if (!UsuarioServicio.normalizar(cuenta.profile().email()).equals(u.getEmail()))
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST,
           "El cambio de correo requiere verificación y aún no está disponible.");
-    if (c.addresses().stream().map(Direccion::id).distinct().count() != c.addresses().size()
-        || c.cards().stream().map(Tarjeta::id).distinct().count() != c.cards().size())
+    if (cuenta.addresses().stream().map(Direccion::id).distinct().count()
+            != cuenta.addresses().size()
+        || cuenta.cards().stream().map(Tarjeta::id).distinct().count() != cuenta.cards().size())
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Hay referencias duplicadas.");
-    if (c.addresses().stream().filter(Direccion::primary).count() > 1
-        || c.cards().stream().filter(Tarjeta::primary).count() > 1)
+    if (cuenta.addresses().stream().filter(Direccion::primary).count() > 1
+        || cuenta.cards().stream().filter(Tarjeta::primary).count() > 1)
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST, "Selecciona solo una referencia predeterminada.");
-    u.setNombre(c.profile().name().trim());
-    u.setTelefono(
-        (c.profile().phone().isEmpty() || c.profile().phone().startsWith("+"))
-            ? c.profile().phone()
-            : "+51" + c.profile().phone());
+    Perfil p = cuenta.profile();
+    c.setNombre(p.name().trim());
+    c.setTelefono(
+        (p.phone().isEmpty() || p.phone().startsWith("+")) ? p.phone() : "+51" + p.phone());
+    c.setFoto(p.photo());
+    c.setTipoDocumento(p.documentType());
+    c.setDocumento(p.document());
+    c.setFechaNacimiento(p.birthday());
+    c.setGenero(p.gender());
+    c.setNotas(p.notes());
+    u.setNombre(c.getNombre());
     try {
-      u.setCuenta(json.writeValueAsString(c));
+      c.setCuenta(
+          json.writeValueAsString(
+              new PreferenciasCuenta(
+                  cuenta.addresses(),
+                  cuenta.cards(),
+                  cuenta.preferredPayment(),
+                  cuenta.preferences(),
+                  cuenta.readNotifications())));
     } catch (Exception e) {
       throw new IllegalStateException("No se pudo guardar la cuenta.", e);
     }
-    repo.save(u);
-    return leer(u);
+    clientes.save(c);
+    return leer(u, c);
   }
 }
