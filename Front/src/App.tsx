@@ -20,7 +20,7 @@ import './styles/register.css';
 import './styles/auth-module.css';
 import './styles/auth-responsive.css';
 
-const sections: Record<string, string> = { Inicio: '/', Carta: '/carta', Promociones: '/promociones', Nosotros: '/nosotros', Locales: '/locales', Contacto: '/contacto', 'Pedir ahora': '/carta' };
+const sections: Record<string, string> = { Inicio: '/', Carta: '/carta', Promociones: '/promociones', 'Pedir ahora': '/carta' };
 export default function App() {
   const session = useSession();
   const [query, setQuery] = useState('');

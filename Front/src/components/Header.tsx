@@ -8,9 +8,6 @@ const sections = [
   "Inicio",
   "Carta",
   "Promociones",
-  "Nosotros",
-  "Locales",
-  "Contacto",
 ];
 
 export function Header({
