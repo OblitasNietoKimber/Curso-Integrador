@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Icono, type NombreIcono } from '../Icono';
+import { Icon, type IconName } from '../Icon';
+import { soles } from '../../utils/formato';
 import type { Promocion } from '../../tipos';
 
 interface PropiedadesTarjetaPromocion {
@@ -8,49 +9,45 @@ interface PropiedadesTarjetaPromocion {
 }
 
 export function TarjetaPromocion({ promocion, alAgregar }: PropiedadesTarjetaPromocion) {
-  const [cantidad, setCantidad] = useState(1);
+  const [count, setCount] = useState(1);
 
-  const ahorro =
-    promocion.precioOriginal && promocion.precioOriginal > promocion.precio
-      ? promocion.precioOriginal - promocion.precio
-      : null;
+  const precioOriginal = promocion.precioOriginal ?? Math.round(promocion.precio * 1.35 * 10) / 10;
+  const ahorro = Math.max(0, precioOriginal - promocion.precio);
+  const badgeTone = promocion.tonoInsignia === 'red' ? 'red' : 'orange';
+  const badgeIcon = (promocion.iconoInsignia as IconName) || 'pumpkin';
+  const badge = promocion.insignia || 'EDICIÓN HALLOWEEN';
+  const esBebida = promocion.filtros?.includes('bebidas');
 
   return (
     <article className="promo-offer-card">
       <svg className="promo-offer-border-trace" aria-hidden="true" focusable="false">
         <rect x="1" y="1" rx="17" pathLength="100" />
       </svg>
-
-      <div className="promo-offer-photo">
+      <div className={`promo-offer-photo${esBebida ? ' promo-offer-photo-beverage' : ''}`}>
         <img
           src={promocion.imagen}
-          alt={promocion.nombre}
+          alt={promocion.descripcion}
           width="960"
           height="430"
           loading="lazy"
         />
-        {promocion.insignia && (
-          <span className={`promo-offer-badge ${promocion.tonoInsignia || 'orange'}`}>
-            <Icono name={(promocion.iconoInsignia as NombreIcono) || 'tag'} />
-            {promocion.insignia}
-          </span>
-        )}
+        <span className={`promo-offer-badge ${badgeTone}`}>
+          <Icon name={badgeIcon} />
+          {badge}
+        </span>
       </div>
-
       <div className="promo-offer-info">
         <h2>{promocion.nombre}</h2>
         <p className="promo-offer-description">{promocion.descripcion}</p>
-
         <div className="promo-offer-price">
-          <strong>S/ {promocion.precio.toFixed(2)}</strong>
-          {promocion.precioOriginal && (
-            <del aria-label={`Precio anterior S/ ${promocion.precioOriginal.toFixed(2)}`}>
-              S/ {promocion.precioOriginal.toFixed(2)}
+          <strong>{soles(promocion.precio)}</strong>
+          {precioOriginal > promocion.precio && (
+            <del aria-label={`Precio anterior ${soles(precioOriginal)}`}>
+              {soles(precioOriginal)}
             </del>
           )}
-          {ahorro && <span>Ahorras S/ {ahorro.toFixed(2)}</span>}
+          {ahorro > 0 && <span>Ahorras {soles(ahorro)}</span>}
         </div>
-
         <div className="promo-offer-actions">
           <div
             className="promo-offer-quantity"
@@ -59,30 +56,29 @@ export function TarjetaPromocion({ promocion, alAgregar }: PropiedadesTarjetaPro
           >
             <button
               type="button"
-              disabled={cantidad <= 1}
+              disabled={count === 1}
               aria-label={`Reducir cantidad de ${promocion.nombre}`}
-              onClick={() => setCantidad(c => Math.max(1, c - 1))}
+              onClick={() => setCount(value => Math.max(1, value - 1))}
             >
               −
             </button>
-            <output aria-label="Cantidad">{cantidad}</output>
+            <output aria-label="Cantidad">{count}</output>
             <button
               type="button"
-              disabled={cantidad >= 99}
+              disabled={count === 99}
               aria-label={`Aumentar cantidad de ${promocion.nombre}`}
-              onClick={() => setCantidad(c => Math.min(99, c + 1))}
+              onClick={() => setCount(value => Math.min(99, value + 1))}
             >
               +
             </button>
           </div>
-
           <button
             type="button"
             className="promo-offer-add"
-            aria-label={`Agregar ${promocion.nombre} al pedido`}
-            onClick={() => alAgregar(promocion.id, cantidad)}
+            aria-label={`Agregar ${promocion.nombre}`}
+            onClick={() => alAgregar(promocion.id, count)}
           >
-            <Icono name="cart" />
+            <Icon name="cart" />
             <span>Agregar</span>
           </button>
         </div>

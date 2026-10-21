@@ -1,11 +1,12 @@
-import { useState } from 'react';
-import { Icono } from '../Icono';
+import { useEffect, useRef } from 'react';
+import { Icon } from '../Icon';
+import { soles } from '../../utils/formato';
 import type { Producto } from '../../tipos';
 
 interface PropiedadesDetalleProductoModal {
   producto: Producto | null;
   alCerrar: () => void;
-  alAgregar: (productoId: string, cantidad: number) => void;
+  alAgregar: (productoId: string) => void;
 }
 
 export function DetalleProductoModal({
@@ -13,92 +14,57 @@ export function DetalleProductoModal({
   alCerrar,
   alAgregar,
 }: PropiedadesDetalleProductoModal) {
-  const [cantidad, setCantidad] = useState(1);
+  const ref = useRef<HTMLDialogElement>(null);
 
-  if (!producto) return null;
-
-  function agregarAlCarrito() {
-    if (!producto) return;
-    alAgregar(producto.id, cantidad);
-    alCerrar();
-  }
+  useEffect(() => {
+    if (producto) {
+      ref.current?.showModal();
+    } else {
+      ref.current?.close();
+    }
+  }, [producto]);
 
   return (
-    <div
-      className="carta-dialog-backdrop"
-      onClick={e => {
-        if (e.target === e.currentTarget) alCerrar();
-      }}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="detalle-titulo"
+    <dialog
+      ref={ref}
+      className="carta-dialog product-detail"
+      aria-labelledby="product-detail-title"
+      onClose={alCerrar}
     >
-      <div className="carta-dialog">
-        <button
-          type="button"
-          className="carta-dialog-close"
-          aria-label="Cerrar ventana"
-          onClick={alCerrar}
-        >
-          <Icono name="close" />
-        </button>
-
-        <div className="carta-dialog-media">
-          <img src={producto.imagen} alt={producto.nombre} width="600" height="400" />
-        </div>
-
-        <div className="carta-dialog-content">
-          <span className="carta-dialog-category">
-            {producto.categoriaNombre || 'Especialidad'}
-          </span>
-          <h2 id="detalle-titulo">{producto.nombre}</h2>
-          <p className="carta-dialog-description">{producto.descripcion}</p>
-
-          <div className="carta-dialog-info">
-            <div className="carta-dialog-price">
-              <small>Precio:</small>
-              <strong>S/ {producto.precio.toFixed(2)}</strong>
-            </div>
-
-            <div className="carta-dialog-quantity">
-              <small>Cantidad:</small>
-              <div className="checkout-quantity">
-                <button
-                  type="button"
-                  disabled={cantidad <= 1}
-                  onClick={() => setCantidad(c => Math.max(1, c - 1))}
-                  aria-label="Disminuir"
-                >
-                  −
-                </button>
-                <output>{cantidad}</output>
-                <button
-                  type="button"
-                  disabled={cantidad >= 99}
-                  onClick={() => setCantidad(c => Math.min(99, c + 1))}
-                  aria-label="Aumentar"
-                >
-                  +
-                </button>
-              </div>
-            </div>
+      <button
+        type="button"
+        className="dialog-close"
+        aria-label="Cerrar detalle"
+        onClick={alCerrar}
+      >
+        <Icon name="close" />
+      </button>
+      {producto && (
+        <>
+          <img
+            src={producto.imagen}
+            alt={producto.descripcion}
+            width="640"
+            height="400"
+          />
+          <div>
+            <h2 id="product-detail-title">{producto.nombre}</h2>
+            <p>{producto.descripcion}</p>
+            <strong>{soles(producto.precio)}</strong>
+            <button
+              type="button"
+              className="primary-button"
+              onClick={() => {
+                alAgregar(producto.id);
+                alCerrar();
+              }}
+            >
+              <Icon name="cart" />
+              Agregar a mi pedido
+            </button>
           </div>
-
-          <div className="carta-dialog-subtotal">
-            <span>Subtotal:</span>
-            <strong>S/ {(producto.precio * cantidad).toFixed(2)}</strong>
-          </div>
-
-          <button
-            type="button"
-            className="home-button"
-            style={{ width: '100%', marginTop: '1.25rem' }}
-            onClick={agregarAlCarrito}
-          >
-            <Icono name="cart" /> Agregar {cantidad} al pedido
-          </button>
-        </div>
-      </div>
-    </div>
+        </>
+      )}
+    </dialog>
   );
 }

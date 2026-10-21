@@ -1,29 +1,37 @@
-import { useState, useEffect } from 'react';
-import { Icono } from '../components/Icono';
+import { useState, useEffect, useMemo } from 'react';
+import { Icon, type IconName } from '../components/Icon';
+import { EmberTrail } from '../components/EmberTrail';
 import { TarjetaPromocion } from '../components/promociones/TarjetaPromocion';
+import { CategoriasCarta } from '../components/catalogo/CategoriasCarta';
+import { OrdenamientoCarta } from '../components/catalogo/OrdenamientoCarta';
 import { ServicioPromociones } from '../services/ServicioPromociones';
 import { usarCarrito } from '../hooks/usarCarrito';
 import type { Promocion } from '../tipos';
-import '../styles/carta.css';
-import '../styles/promotions.css';
 
-const CATEGORIAS_PROMO = [
-  { id: 'todas', etiqueta: 'Todas las promos' },
-  { id: 'combos', etiqueta: 'Combos' },
-  { id: 'familiares', etiqueta: 'Familiares' },
-  { id: 'individuales', etiqueta: 'Individuales' },
-  { id: 'bebidas', etiqueta: 'Bebidas' },
-  { id: 'acompanamientos', etiqueta: 'Acompañamientos' },
+const promotionCategories: { id: string; label: string; icon: IconName }[] = [
+  { id: 'todas', label: 'Todas', icon: 'grid' },
+  { id: 'combos', label: 'Combos', icon: 'chicken' },
+  { id: 'familiares', label: 'Familiares', icon: 'users' },
+  { id: 'individuales', label: 'Individuales', icon: 'user' },
+  { id: 'bebidas', label: 'Bebidas', icon: 'drink' },
+  { id: 'acompanamientos', label: 'Acompañamientos', icon: 'fries' },
+];
+
+const promotionLabels = [
+  { id: 'halloween', name: 'EDICIÓN HALLOWEEN', icon: 'pumpkin' as const, tone: 'orange' as const },
+  { id: 'popular', name: 'LA MÁS PEDIDA', icon: 'flame' as const, tone: 'red' as const },
+  { id: 'seasonal', name: 'SOLO POR TEMPORADA', icon: 'clock' as const, tone: 'orange' as const },
 ];
 
 export function PaginaPromociones() {
   const [promociones, setPromociones] = useState<Promocion[]>([]);
   const [categoria, setCategoria] = useState('todas');
   const [busqueda, setBusqueda] = useState('');
+  const [labelOrder, setLabelOrder] = useState('halloween');
+  const [limit, setLimit] = useState(6);
   const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const { agregar, mensajeNotificacion, limpiarMensaje } = usarCarrito();
+  const { agregar } = usarCarrito();
 
   useEffect(() => {
     let activo = true;
@@ -38,11 +46,8 @@ export function PaginaPromociones() {
           setCargando(false);
         }
       })
-      .catch(err => {
-        if (activo) {
-          setError(err instanceof Error ? err.message : 'Error al cargar promociones');
-          setCargando(false);
-        }
+      .catch(() => {
+        if (activo) setCargando(false);
       });
 
     return () => {
@@ -50,133 +55,152 @@ export function PaginaPromociones() {
     };
   }, [categoria, busqueda]);
 
+  const filtradas = useMemo(() => {
+    const targetBadge = promotionLabels.find(l => l.id === labelOrder)?.name;
+    return [...promociones].sort((a, b) => {
+      const aMatch = a.insignia === targetBadge ? 1 : 0;
+      const bMatch = b.insignia === targetBadge ? 1 : 0;
+      return bMatch - aMatch;
+    });
+  }, [promociones, labelOrder]);
+
   return (
     <main className="promotions-page" id="contenido">
-      {/* Notificación flotante de carrito */}
-      {mensajeNotificacion && (
-        <aside
-          className="carta-toast"
-          role="status"
-          style={{
-            position: 'fixed',
-            bottom: '80px',
-            right: '20px',
-            backgroundColor: '#2e7d32',
-            color: '#fff',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-          }}
-        >
-          <Icono name="check" />
-          <span>{mensajeNotificacion}</span>
-          <button
-            type="button"
-            onClick={limpiarMensaje}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#fff',
-              cursor: 'pointer',
-              marginLeft: '8px',
-            }}
-          >
-            ✕
-          </button>
-        </aside>
-      )}
-
-      {/* Hero de Promociones */}
-      <section className="promotions-hero" aria-labelledby="promociones-titulo">
+      <EmberTrail />
+      <section className="promotions-hero" aria-labelledby="promotions-title">
         <picture className="promotions-hero-background">
           <source media="(max-width: 650px)" srcSet="/images/promotions/hero-mobile-v2.webp" />
           <img
             src="/images/promotions/hero-desktop-v3.webp"
-            alt="Pollo a la brasa y papas en promociones especiales"
+            alt="Pollo a la brasa y papas en una edición de Halloween"
             width="1920"
             height="360"
             fetchPriority="high"
           />
         </picture>
         <div className="promotions-hero-copy">
-          <h1 id="promociones-titulo">
-            <span className="sr-only">Promociones que encienden el antojo</span>
+          <h1 id="promotions-title">
+            <span className="sr-only">Promociones que dan susto</span>
             <img src="/images/promotions/title.webp" alt="" width="1200" height="420" />
           </h1>
-          <p>Sabores de temporada y grandes ahorros por tiempo limitado</p>
+          <p>Sabores de temporada, por tiempo limitado</p>
         </div>
+        <p className="promotions-hero-note">
+          El buen
+          <br />
+          pollo{' '}
+          <span>
+            también
+            <br />
+            da miedo…
+          </span>
+          <br />
+          de lo rico
+          <br />
+          que es
+        </p>
       </section>
 
       <div className="promotions-container">
-        {/* Barra de Búsqueda */}
-        <label className="carta-mobile-search" id="promociones-search">
-          <Icono name="search" />
+        <label className="carta-mobile-search" id="carta-search">
+          <Icon name="search" />
           <input
             type="search"
             aria-label="Buscar promociones"
-            placeholder="Buscar entre las promociones…"
+            placeholder="Buscar promociones…"
             value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
+            onChange={event => {
+              setBusqueda(event.target.value);
+              setLimit(6);
+            }}
           />
         </label>
 
-        {/* Categorías de Promociones */}
-        <div className="carta-size-filters" aria-label="Categorías de ofertas" style={{ margin: '1.5rem 0' }}>
-          {CATEGORIAS_PROMO.map(cat => (
-            <button
-              type="button"
-              key={cat.id}
-              className={`carta-size-button ${categoria === cat.id ? 'active' : ''}`}
-              aria-pressed={categoria === cat.id}
-              onClick={() => setCategoria(cat.id)}
-            >
-              {cat.etiqueta}
-            </button>
-          ))}
+        <div className="carta-toolbar">
+          <CategoriasCarta
+            categoriaSeleccionada={categoria}
+            alSeleccionar={val => {
+              setCategoria(val);
+              setLimit(6);
+            }}
+            categorias={[]}
+            label="Categorías de promociones"
+            tabs={promotionCategories.map(item => ({
+              id: item.id,
+              name: item.label,
+              icon: item.icon,
+              image: `/images/carta/categories/${
+                item.id === 'bebidas'
+                  ? 'bebidas'
+                  : item.id === 'acompanamientos'
+                  ? 'acompanamientos'
+                  : item.id === 'combos' || item.id === 'familiares'
+                  ? 'combos'
+                  : 'pollo'
+              }.webp`,
+            }))}
+          />
+          <OrdenamientoCarta
+            value={labelOrder}
+            onChange={value => setLabelOrder(value)}
+            label="Ordenar promociones por etiqueta"
+            options={promotionLabels.map(label => ({
+              id: label.id as any,
+              name:
+                label.name === 'EDICIÓN HALLOWEEN'
+                  ? 'Edición Halloween'
+                  : label.name === 'LA MÁS PEDIDA'
+                  ? 'La más pedida'
+                  : 'Solo por temporada',
+              icon: label.icon,
+              description: 'Mostrar primero esta etiqueta',
+            }))}
+          />
         </div>
 
-        {/* Listado de Ofertas */}
-        <section aria-label="Ofertas disponibles">
-          {cargando ? (
-            <div style={{ textAlign: 'center', padding: '3rem 0', color: 'rgba(255,255,255,0.7)' }}>
-              <p>Consultando promociones vigentes en el servidor…</p>
-            </div>
-          ) : error ? (
+        <section aria-label="Ofertas de temporada">
+          <p className="sr-only" role="status">
+            {filtradas.length} promociones disponibles
+          </p>
+
+          {filtradas.length > 0 ? (
+            <>
+              <div className="promo-offer-grid">
+                {filtradas.slice(0, limit).map(promotion => (
+                  <TarjetaPromocion
+                    key={promotion.id}
+                    promocion={promotion}
+                    alAgregar={(id, count) => agregar(id, count)}
+                  />
+                ))}
+              </div>
+              {limit < filtradas.length && (
+                <button
+                  type="button"
+                  className="carta-load-more"
+                  onClick={() => setLimit(prev => prev + 6)}
+                >
+                  Ver más productos <Icon name="arrow" />
+                </button>
+              )}
+            </>
+          ) : !cargando ? (
             <div className="carta-no-results">
-              <Icono name="close" />
-              <h3>Error al consultar promociones</h3>
-              <p>{error}</p>
-            </div>
-          ) : promociones.length > 0 ? (
-            <div className="promo-offer-grid">
-              {promociones.map(promo => (
-                <TarjetaPromocion
-                  key={promo.id}
-                  promocion={promo}
-                  alAgregar={(id, cant) => agregar(id, cant)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="carta-no-results">
-              <Icono name="search" />
+              <Icon name="search" />
               <h2>No encontramos esa promoción</h2>
-              <p>Prueba con otro término o selecciona otra categoría.</p>
+              <p>Prueba otro nombre o cambia la categoría.</p>
               <button
                 type="button"
                 onClick={() => {
-                  setCategoria('todas');
                   setBusqueda('');
+                  setCategoria('todas');
+                  setLimit(6);
                 }}
               >
                 Ver todas las promociones
               </button>
             </div>
-          )}
+          ) : null}
         </section>
       </div>
     </main>
