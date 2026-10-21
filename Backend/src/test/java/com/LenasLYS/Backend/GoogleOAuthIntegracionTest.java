@@ -33,6 +33,7 @@ import org.springframework.test.web.servlet.*;
 @SpringBootTest(
     properties = {
       "app.auth.google-enabled=true",
+      "app.auth.totp-key=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
       "app.auth.google-client-id=test-client",
       "app.auth.google-client-secret=test-secret"
     })
@@ -127,6 +128,49 @@ class GoogleOAuthIntegracionTest {
   }
 
   @Test
+  void googleNoOmiteElSegundoFactor() throws Exception {
+    var initial = callback("valid");
+    var session = (MockHttpSession) initial.getRequest().getSession(false);
+    var setup =
+        mvc.perform(post("/api/account/security/setup").session(session).with(csrf()))
+            .andExpect(status().isOk())
+            .andReturn();
+    String secret = json.readTree(setup.getResponse().getContentAsString()).get("secret").asText();
+    var enable =
+        mvc.perform(
+                post("/api/account/security/enable")
+                    .session(session)
+                    .with(csrf())
+                    .contentType("application/json")
+                    .content(
+                        json.writeValueAsString(
+                            Map.of(
+                                "code",
+                                com.LenasLYS.Backend.servicio.Totp.codigo(
+                                    secret, Instant.now().getEpochSecond() / 30)))))
+            .andExpect(status().isOk())
+            .andReturn();
+    String recovery =
+        json.readTree(enable.getResponse().getContentAsString())
+            .get("recoveryCodes")
+            .get(0)
+            .asText();
+    var next = callback("valid");
+    assertEquals(
+        "http://localhost:5173/iniciar-sesion?two_factor=1", next.getResponse().getRedirectedUrl());
+    var pending = (MockHttpSession) next.getRequest().getSession(false);
+    mvc.perform(get("/api/auth/me").session(pending)).andExpect(status().isUnauthorized());
+    mvc.perform(
+            post("/api/auth/2fa/verify")
+                .session(pending)
+                .with(csrf())
+                .contentType("application/json")
+                .content(json.writeValueAsString(Map.of("code", recovery))))
+        .andExpect(status().isOk());
+    mvc.perform(get("/api/auth/me").session(pending)).andExpect(status().isOk());
+  }
+
+  @Test
   void preferenciasSeGuardanAntesDeCompletarElCelular() throws Exception {
     var resultado = callback("valid");
     var s = (MockHttpSession) resultado.getRequest().getSession(false);
@@ -173,85 +217,13 @@ class GoogleOAuthIntegracionTest {
   }
 
   @Test
-  void vinculaGoogleSoloDespuesDeAutenticarLaCuentaLocal() throws Exception {
-    mvc.perform(post("/api/auth/google/link").with(csrf())).andExpect(status().isUnauthorized());
+  void vinculacionRetirada() throws Exception {
+    var result = callback("valid");
     mvc.perform(
-            post("/api/auth/register")
-                .with(csrf())
-                .contentType("application/json")
-                .content(
-                    json.writeValueAsString(
-                        Map.of(
-                            "name",
-                            "Local",
-                            "email",
-                            "google@example.com",
-                            "phone",
-                            "+51987654321",
-                            "password",
-                            "Prueba2026!",
-                            "termsAccepted",
-                            true))))
-        .andExpect(status().isCreated());
-    var local =
-        (MockHttpSession)
-            mvc.perform(
-                    post("/api/auth/login")
-                        .with(csrf())
-                        .contentType("application/json")
-                        .content("{\"email\":\"google@example.com\",\"password\":\"Prueba2026!\"}"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getRequest()
-                .getSession(false);
-    mvc.perform(post("/api/auth/google/link").session(local).with(csrf()))
-        .andExpect(status().isOk());
-    var respuesta = callback("valid", local);
-    assertEquals("http://localhost:5173/mi-cuenta", respuesta.getResponse().getRedirectedUrl());
-    var u = usuarios.findByGoogleSub("google-sub-123").orElseThrow();
-    assertNotNull(u.getPasswordHash());
-    assertEquals(1, usuarios.count());
-  }
-
-  @Test
-  void noVinculaGoogleConOtroCorreo() throws Exception {
-    mvc.perform(
-            post("/api/auth/register")
-                .with(csrf())
-                .contentType("application/json")
-                .content(
-                    json.writeValueAsString(
-                        Map.of(
-                            "name",
-                            "Local",
-                            "email",
-                            "otro@example.com",
-                            "phone",
-                            "+51987654321",
-                            "password",
-                            "Prueba2026!",
-                            "termsAccepted",
-                            true))))
-        .andExpect(status().isCreated());
-    var local =
-        (MockHttpSession)
-            mvc.perform(
-                    post("/api/auth/login")
-                        .with(csrf())
-                        .contentType("application/json")
-                        .content("{\"email\":\"otro@example.com\",\"password\":\"Prueba2026!\"}"))
-                .andExpect(status().isOk())
-                .andReturn()
-                .getRequest()
-                .getSession(false);
-    mvc.perform(post("/api/auth/google/link").session(local).with(csrf()))
-        .andExpect(status().isOk());
-    assertTrue(
-        callback("valid", local)
-            .getResponse()
-            .getRedirectedUrl()
-            .endsWith("google_error=identity_mismatch"));
-    assertTrue(usuarios.findByGoogleSub("google-sub-123").isEmpty());
+            post("/api/auth/google/link")
+                .session((MockHttpSession) result.getRequest().getSession(false))
+                .with(csrf()))
+        .andExpect(status().isNotFound());
   }
 
   @Test
