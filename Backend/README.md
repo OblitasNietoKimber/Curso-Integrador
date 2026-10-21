@@ -49,7 +49,7 @@ Configurar `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_AUT
 
 El enlace apunta a `/restablecer-contrasena?token=...`, dura 30 minutos y solo sirve una vez. En la base se almacena únicamente su hash SHA-256. Solicitar otro enlace invalida el anterior. El API no devuelve ni registra el token. Los correos desconocidos reciben la misma respuesta genérica. Cuando el correo no está habilitado se responde 503; no se simula un envío.
 
-Google OAuth y verificación del correo al registrarse quedan pendientes de configuración e implementación. Los botones de Google informan de que todavía no están disponibles.
+La verificación por correo de los registros con contraseña sigue pendiente. El acceso con Google se configura como se indica abajo.
 
 ## Despliegue
 
@@ -62,3 +62,33 @@ Usar HTTPS y `SESSION_COOKIE_SECURE=true`. Configurar `ALLOWED_ORIGINS` con los 
 ```
 
 Las pruebas usan H2 en modo PostgreSQL (`application-test.properties`), aplican la migración y no acceden a tu base local. Cubren registro, rol fijo, hash, duplicados, CSRF real, login, cierre de sesión, separación entre usuarios, persistencia de cuenta, cambio y recuperación de clave, tokens vencidos y tokens reutilizados. Incluyen las pruebas existentes del catálogo. La configuración Mockito usa mocks por subclase para evitar depender de la auto-adjunción de agentes JVM.
+
+
+## Iniciar sesión con Google
+
+1. En [Google Cloud Console](https://console.cloud.google.com/), crear o seleccionar un proyecto y configurar Google Auth Platform (nombre de la aplicación, correo de soporte y audiencia). Si está en modo de prueba, agregar las cuentas de los integrantes como usuarios de prueba.
+2. Crear un cliente OAuth de tipo **Aplicación web**. En **URIs de redirección autorizados** registrar exactamente:
+
+```text
+http://localhost:5173/login/oauth2/code/google
+```
+
+3. Completar `Backend/.env` con el ID y secreto de ese cliente:
+
+```properties
+GOOGLE_LOGIN_ENABLED=true
+GOOGLE_CLIENT_ID=tu-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=tu-secreto
+GOOGLE_REDIRECT_URI=http://localhost:5173/login/oauth2/code/google
+FRONTEND_URL=http://localhost:5173
+```
+
+4. Reiniciar Spring Boot y Vite. Abrir la web usando **localhost:5173** y pulsar «Continuar con Google». Vite reenvía `/oauth2` y `/login/oauth2` al backend. Usar el mismo host durante todo el flujo: no alternar entre `localhost` y `127.0.0.1`.
+
+El flujo usa OpenID Connect y código de autorización. Spring verifica firma, emisor, audiencia, estado, nonce y vigencia; el secreto y el intercambio de código permanecen en el servidor. Solo se solicitan `openid`, `email` y `profile`. El identificador de la cuenta es el `sub` de Google, persistido con la migración V2. Se exige correo verificado y las cuentas nuevas reciben `CLIENTE`. No se inventa una contraseña local ni se solicita teléfono a Google. El usuario completa el celular desde Mis datos cuando lo necesite.
+
+Si ya existe una cuenta local con el mismo correo, el login Google no la vincula automáticamente. Entrar con la contraseña, abrir **Mi cuenta → Mis datos → Vincular Google** y elegir una cuenta de Google con el mismo correo. La solicitud de vinculación exige sesión y CSRF y vence en cinco minutos. La contraseña local y los permisos existentes se conservan.
+
+Cuando Google está desactivado, el backend inicia normalmente y el botón muestra un aviso de configuración. Si se activa sin credenciales, el arranque indica qué variables faltan. No se necesita añadir secretos al frontend. En producción, registrar el callback HTTPS exacto del dominio público de la aplicación y configurar la ruta de proxy correspondiente.
+
+Las pruebas de Google usan un proveedor local que firma tokens de prueba. Comprueban creación de cliente, acceso repetido por `sub`, vinculación explícita, rechazo de vinculación con otro correo, cuenta deshabilitada, correo sin verificar, firma/audiencia/vigencia inválidas, estado ausente y cancelación. No usan credenciales reales ni llaman a Google.

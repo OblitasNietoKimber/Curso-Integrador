@@ -23,4 +23,4 @@ Iniciar también el backend según [su guía](../Backend/README.md). Vite reenv�
 - `/mi-cuenta/datos`, `/direcciones`, `/metodos-pago`, `/notificaciones`: persistencia en PostgreSQL a través de `/api/account`.
 - `/mi-cuenta/favoritos` y `/mi-cuenta/pedidos`: integración pendiente con sus módulos.
 
-Las cookies de sesión las gestiona el navegador. No se guardan contraseñas ni tokens de sesión en localStorage. Si el servidor rechaza una operación, se muestra el error y no se confirma un guardado que haya fallado. Los botones de Google siguen pendientes de OAuth. Se conservan las páginas y servicios de catálogo, promociones y carrito incorporados de `dev`.
+Las cookies de sesión las gestiona el navegador. No se guardan contraseñas ni tokens de sesión en localStorage. Si el servidor rechaza una operación, se muestra el error y no se confirma un guardado que haya fallado. Los botones de Google usan el flujo OAuth de Spring Boot; requieren las credenciales indicadas en la guía del backend. Mis datos incluye la vinculación explícita de una cuenta local. Se conservan las páginas y servicios de catálogo, promociones y carrito incorporados de `dev`.
