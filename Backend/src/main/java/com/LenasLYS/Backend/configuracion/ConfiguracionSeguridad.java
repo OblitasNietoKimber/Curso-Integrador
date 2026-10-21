@@ -23,7 +23,7 @@ public class ConfiguracionSeguridad {
             .authorizeHttpRequests(autorizacion -> autorizacion
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers("/api/**").permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             );
 
         return http.build();

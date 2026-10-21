@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,10 +29,10 @@ public class CarritoServicio {
     @Transactional
     public Carrito obtenerOCrear(String carritoId) {
         if (carritoId == null || carritoId.isBlank()) {
-            return crearNuevoCarrito();
+            return crearNuevoCarrito(null);
         }
         return carritoRepositorio.findById(carritoId)
-                .orElseGet(this::crearNuevoCarrito);
+                .orElseGet(() -> crearNuevoCarrito(carritoId));
     }
 
     @Transactional(readOnly = true)
@@ -139,11 +140,13 @@ public class CarritoServicio {
         return CarritoDTO.desdeEntidad(guardado);
     }
 
-    private Carrito crearNuevoCarrito() {
+    private Carrito crearNuevoCarrito(String idDeseado) {
+        String idFinal = (idDeseado != null && !idDeseado.isBlank()) ? idDeseado : UUID.randomUUID().toString();
         Carrito carrito = Carrito.builder()
-                .id(UUID.randomUUID().toString())
+                .id(idFinal)
                 .fechaCreacion(LocalDateTime.now())
                 .fechaActualizacion(LocalDateTime.now())
+                .items(new ArrayList<>())
                 .build();
         return carritoRepositorio.save(carrito);
     }
