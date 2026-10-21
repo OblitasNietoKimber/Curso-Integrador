@@ -10,15 +10,13 @@ import java.util.List;
 
 @Configuration
 public class ConfiguracionCors {
+    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000}")
+    private String origins;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuracion = new CorsConfiguration();
-        configuracion.setAllowedOriginPatterns(List.of(
-            "http://localhost:5173",
-            "http://127.0.0.1:5173",
-            "http://localhost:3000"
-        ));
+        configuracion.setAllowedOrigins(java.util.Arrays.stream(origins.split(",")).map(String::trim).toList());
         configuracion.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuracion.setAllowedHeaders(List.of("*"));
         configuracion.setAllowCredentials(true);
