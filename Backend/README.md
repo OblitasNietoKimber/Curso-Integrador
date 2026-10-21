@@ -87,8 +87,38 @@ FRONTEND_URL=http://localhost:5173
 
 El flujo usa OpenID Connect y código de autorización. Spring verifica firma, emisor, audiencia, estado, nonce y vigencia; el secreto y el intercambio de código permanecen en el servidor. Solo se solicitan `openid`, `email` y `profile`. El identificador de la cuenta es el `sub` de Google, persistido con la migración V2. Se exige correo verificado y las cuentas nuevas reciben `CLIENTE`. No se inventa una contraseña local ni se solicita teléfono a Google. El usuario completa el celular desde Mis datos cuando lo necesite.
 
-Si ya existe una cuenta local con el mismo correo, el login Google no la vincula automáticamente. Entrar con la contraseña, abrir **Mi cuenta → Mis datos → Vincular Google** y elegir una cuenta de Google con el mismo correo. La solicitud de vinculación exige sesión y CSRF y vence en cinco minutos. La contraseña local y los permisos existentes se conservan.
+Si ya existe una cuenta local con el mismo correo, se debe entrar con su contraseña. La vinculación manual de Google fue retirada; no se fusionan cuentas automáticamente.
 
 Cuando Google está desactivado, el backend inicia normalmente y el botón muestra un aviso de configuración. Si se activa sin credenciales, el arranque indica qué variables faltan. No se necesita añadir secretos al frontend. En producción, registrar el callback HTTPS exacto del dominio público de la aplicación y configurar la ruta de proxy correspondiente.
 
-Las pruebas de Google usan un proveedor local que firma tokens de prueba. Comprueban creación de cliente, acceso repetido por `sub`, vinculación explícita, rechazo de vinculación con otro correo, cuenta deshabilitada, correo sin verificar, firma/audiencia/vigencia inválidas, estado ausente y cancelación. No usan credenciales reales ni llaman a Google.
+Las pruebas de Google usan un proveedor local que firma tokens de prueba. Comprueban creación de cliente, acceso repetido por `sub`, segundo factor obligatorio, ausencia de vinculación manual, cuenta deshabilitada, correo sin verificar, firma/audiencia/vigencia inválidas, estado ausente y cancelación. No usan credenciales reales ni llaman a Google.
+
+## Seguridad y Google Authenticator
+
+**Mi cuenta → Seguridad** contiene el cambio de contraseña y la verificación en dos pasos. Mis datos conserva únicamente la información del perfil. El navbar de autenticación contiene Inicio, Carta y Promociones.
+
+Antes de activar Authenticator, generar una clave aleatoria de 32 bytes en PowerShell:
+
+```powershell
+$totpBytes = New-Object byte[] 32
+[System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($totpBytes)
+[Convert]::ToBase64String($totpBytes)
+```
+
+Copiar el resultado a `Backend/.env` y reiniciar Spring Boot:
+
+```dotenv
+TOTP_ENCRYPTION_KEY=resultado-del-comando
+```
+
+Conservar esta clave de forma segura: cifra los secretos TOTP con AES-256-GCM. Cambiarla impide verificar las cuentas ya configuradas. Sin ella la web informa que la configuración está pendiente y no permite activar 2FA; no hay una clave predeterminada en el repositorio.
+
+1. Iniciar sesión recientemente (menos de cinco minutos), entrar en Seguridad y pulsar Activar Google Authenticator.
+2. Escanear el QR desde la app o introducir la clave manualmente, eligiendo códigos basados en tiempo.
+3. Confirmar un código de seis dígitos. Hasta confirmarlo, la protección sigue desactivada. El alta pendiente vence en diez minutos.
+4. Guardar los ocho códigos de recuperación mostrados una sola vez. Se pueden descargar; cada uno sirve una sola vez y el servidor conserva únicamente sus hashes SHA-256.
+5. Los siguientes accesos, tanto con contraseña como con Google, quedan pendientes hasta verificar un código. El desafío vence en cinco minutos y admite cinco intentos. CSRF y el límite de solicitudes también se aplican.
+
+Se utiliza TOTP según RFC 6238 (SHA-1, seis dígitos, 30 segundos, tolerancia de un periodo). Los códigos usados se rechazan con un contador protegido mediante bloqueo de fila. Activar o desactivar la protección revoca las demás sesiones; desactivar exige un código de la app o de recuperación. Recuperar/cambiar contraseña no elimina el segundo factor. No se necesita un cliente adicional en Google Cloud ni se envían claves a servicios externos para generar el QR.
+
+Endpoints: `GET /api/account/security`, `POST /api/account/security/setup`, `/enable`, `/disable`; `POST /api/auth/2fa/verify` completa el acceso pendiente. La sesión de desafío no tiene permisos para acceder a Mi cuenta. Las pruebas usan H2 en modo PostgreSQL, vectores RFC, activación, cifrado, códigos reutilizados, recuperación de un solo uso, vencimiento, límites de intentos, CSRF y acceso Google con segundo factor.
