@@ -2151,3 +2151,11 @@
     display: flex;
   }
 }
+
+.account-security-panel { padding: clamp(20px, 3vw, 38px); margin-bottom: 20px; }
+.account-security-panel h2 { margin-top: 0; }
+.account-security-panel p { line-height: 1.6; }
+.security-qr { display: block; width: 240px; max-width: 100%; height: auto; margin: 0 auto; }
+.security-secret { display: block; overflow-wrap: anywhere; padding: 12px; background: #f5f6f8; user-select: all; }
+.security-recovery { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; padding-left: 20px; }
+.account-security-panel > .info-button { margin: 4px 8px 4px 0; }

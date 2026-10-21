@@ -33,6 +33,12 @@ export const accountSections: {
     description: "Actualiza tu información personal.",
   },
   {
+    slug: "seguridad",
+    label: "Seguridad",
+    icon: "lock",
+    description: "Administra tu contraseña y la verificación en dos pasos.",
+  },
+  {
     slug: "metodos-pago",
     label: "Métodos de pago",
     icon: "card",

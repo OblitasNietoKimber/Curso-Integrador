@@ -3,17 +3,18 @@ import { Icon, GoogleIcon } from "../../components/Icon";
 import { AuthField } from "./AuthField";
 import { useSignIn } from "./useSignIn";
 
+import { TwoFactorCard } from "./TwoFactorCard";
+
 type FieldName = "email" | "password";
-export function SignInCard({
+function PasswordSignInCard({
   onHelp,
 }: {
   onHelp: (action: "register" | "recover") => void;
 }) {
   const googleError = new URLSearchParams(location.search).get('google_error');
   const googleMessages: Record<string, string> = {
-    account_exists: 'Ya existe una cuenta con ese correo. Inicia sesión con tu contraseña. Después puedes vincular Google desde Mis datos.',
+    account_exists: 'Ya existe una cuenta con ese correo. Inicia sesión con tu contraseña.',
     account_disabled: 'Esta cuenta está deshabilitada. Contacta con el administrador.',
-    identity_mismatch: 'La cuenta de Google no coincide con el correo de la cuenta que deseas vincular.',
     identity_invalid: 'Google no pudo confirmar un correo verificado para tu cuenta.',
     cancelled_or_failed: 'No se completó el acceso con Google. Puedes intentarlo de nuevo.',
   };
@@ -181,4 +182,8 @@ export function SignInCard({
       )}
     </section>
   );
+}
+
+export function SignInCard(props: { onHelp: (action: "register" | "recover") => void }) {
+  return new URLSearchParams(location.search).get('two_factor') === '1' ? <TwoFactorCard /> : <PasswordSignInCard {...props} />;
 }

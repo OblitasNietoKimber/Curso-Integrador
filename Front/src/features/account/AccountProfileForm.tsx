@@ -1,9 +1,7 @@
 import { useRef, useState } from "react";
-import { changePassword, linkGoogle } from '../../services/authService';
 import { profilePhoto } from "../../services/profilePhoto";
 import { Icon } from "../../components/Icon";
 import { updateAccount, useAccount } from "./accountStore";
-import { AccountDialog } from "./AccountShared";
 export function AccountProfileForm({ onNavigate }: { onNavigate: (path: string) => void }) {
   const account = useAccount();
   const [today] = useState(() => new Date().toLocaleDateString("en-CA"));
@@ -15,9 +13,6 @@ export function AccountProfileForm({ onNavigate }: { onNavigate: (path: string) 
     account.profile.name.split(/\s+/).slice(1).join(" "),
   );
   const [message, setMessage] = useState("");
-  const [dialog, setDialog] = useState("");
-  const [previous, setPrevious] = useState("");
-  const [next, setNext] = useState("");
   const fileInput = useRef<HTMLInputElement>(null);
   function cancel() {
     setDraft(account.profile);
@@ -214,78 +209,7 @@ export function AccountProfileForm({ onNavigate }: { onNavigate: (path: string) 
           </button>
         </details>
       </form>
-      <section className="info-card account-security">
-        <h2>Seguridad</h2>
-        <p>Puedes vincular una cuenta de Google con el mismo correo.</p>
-        <button type="button" className="info-button" onClick={() => void linkGoogle().catch(error => setMessage(error.message))}>Vincular Google</button>
-        <div>
-          <label>
-            Contraseña
-            <input
-              type="password"
-              value="**********"
-              readOnly
-              aria-label="Contraseña guardada"
-            />
-          </label>
-          <button
-            className="info-button danger"
-            onClick={() => {
-              setDialog("Cambiar contraseña");
-              setMessage("");
-            }}
-          >
-            Cambiar contraseña
-          </button>
-        </div>
-      </section>
       {message && <p role="status">{message}</p>}
-      {dialog && (
-        <AccountDialog title={dialog} onClose={() => setDialog("")}>
-          {dialog === "Cambiar contraseña" ? (
-            <form
-              className="account-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void changePassword(previous, next)
-                  .then(() => {
-                    setDialog("");
-                    setPrevious("");
-                    setNext("");
-                    setMessage("Contraseña actualizada. Vuelve a iniciar sesión.");
-                  })
-                  .catch((err) => setMessage(err.message));
-              }}
-            >
-              <label>
-                Contraseña actual
-                <input
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={previous}
-                  onChange={(e) => setPrevious(e.target.value)}
-                />
-              </label>
-              <label>
-                Nueva contraseña
-                <input
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  minLength={8}
-                  value={next}
-                  onChange={(e) => setNext(e.target.value)}
-                />
-              </label>
-              <button className="primary-button" type="submit">
-                Guardar contraseña
-              </button>
-              {message && <p role="alert">{message}</p>}
-            </form>
-          ) : null}
-        </AccountDialog>
-      )}
     </>
   );
 }
