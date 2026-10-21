@@ -33,7 +33,8 @@ public class ConfiguracionSeguridad {
     .requestMatchers("/api/**").authenticated().anyRequest().denyAll())
    .exceptionHandling(e->e.authenticationEntryPoint((req,res,ex)->{res.setStatus(401);res.setContentType("application/json;charset=UTF-8");res.getWriter().write("{\"message\":\"Inicia sesión para continuar.\"}");})
     .accessDeniedHandler((req,res,ex)->{res.setStatus(403);res.setContentType("application/json;charset=UTF-8");res.getWriter().write("{\"message\":\"Solicitud no autorizada. Actualiza la página e inténtalo de nuevo.\"}");}))
-   .addFilterBefore(new SesionVigenteFiltro(usuarios),AnonymousAuthenticationFilter.class);
+   .addFilterBefore(new SesionVigenteFiltro(usuarios),AnonymousAuthenticationFilter.class)
+   .addFilterBefore(new IntentosAutenticacionFiltro(),org.springframework.security.web.csrf.CsrfFilter.class);
   return http.build();
  }
 }
