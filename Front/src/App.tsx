@@ -1,4 +1,9 @@
 import { useEffect, useState } from 'react';
+import { PaginaInicio } from './pages/PaginaInicio';
+import { PaginaCatalogo } from './pages/PaginaCatalogo';
+import { PaginaPromociones } from './pages/PaginaPromociones';
+import { PaginaCarrito } from './pages/PaginaCarrito';
+import { PiePagina } from './components/PiePagina';
 import { Header } from './components/Header';
 import { AuthLayout } from './components/AuthLayout';
 import { NoticeDialog, type Notice } from './components/NoticeDialog';
@@ -20,11 +25,12 @@ export default function App() {
   useEffect(() => { document.title = `${route.startsWith('/mi-cuenta') ? 'Mi cuenta' : route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);
   return <>
     <a className="skip-link" href="#contenido">Saltar al contenido</a>
-    <Header activeSection="" onSection={section => { const path = sections[section]; if (path === '/') navigate('/'); else setNotice({ title: section, message: 'Esta sección estará disponible próximamente.' }); }} />
+    <Header activeSection="" onSection={section => { const path = sections[section]; if (['/', '/carta', '/promociones'].includes(path)) navigate(path); else setNotice({ title: section, message: 'Esta sección estará disponible próximamente.' }); }} />
     <div className="auth-preview-bar"><span>{route.startsWith('/mi-cuenta') ? 'Mi cuenta de ejemplo · los cambios se restablecen al recargar' : 'Vista previa de interfaces'}</span><a href="/mi-cuenta" onClick={event => { event.preventDefault(); navigate('/mi-cuenta'); }}>Ver Mi cuenta</a></div>
-    {route.startsWith('/mi-cuenta') ? <AccountPage key={route} route={route} onNavigate={navigate} /> : route === '/registrarse' ? <AuthLayout registration><RegisterCard onLogin={() => navigate('/iniciar-sesion')} onLegal={kind => setNotice({ title: kind === 'terms' ? 'Términos y Condiciones' : 'Política de Privacidad', message: 'Contenido de referencia del prototipo. Los textos legales definitivos se incorporarán antes de habilitar el registro. En esta vista previa no se crean cuentas ni se envían datos.' })} /></AuthLayout>
+    {route === '/' ? <PaginaInicio alNavegar={navigate} /> : route === '/carta' ? <PaginaCatalogo alNavegar={navigate} /> : route === '/promociones' ? <PaginaPromociones /> : route === '/carrito' ? <PaginaCarrito alNavegar={navigate} /> : route.startsWith('/mi-cuenta') ? <AccountPage key={route} route={route} onNavigate={navigate} /> : route === '/registrarse' ? <AuthLayout registration><RegisterCard onLogin={() => navigate('/iniciar-sesion')} onLegal={kind => setNotice({ title: kind === 'terms' ? 'Términos y Condiciones' : 'Política de Privacidad', message: 'Contenido de referencia del prototipo. Los textos legales definitivos se incorporarán antes de habilitar el registro. En esta vista previa no se crean cuentas ni se envían datos.' })} /></AuthLayout>
       : route === '/recuperar-contrasena' ? <AuthLayout><RecoveryCard onLogin={() => navigate('/iniciar-sesion')} /></AuthLayout>
       : <SignInPage onHelp={action => navigate(action === 'register' ? '/registrarse' : '/recuperar-contrasena')} />}
+    {['/', '/carta', '/promociones', '/carrito'].includes(route) && <PiePagina alNavegar={navigate} />}
     <NoticeDialog notice={notice} onClose={() => setNotice(null)} />
   </>;
 }
