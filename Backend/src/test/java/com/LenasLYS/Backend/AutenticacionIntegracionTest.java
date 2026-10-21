@@ -31,6 +31,7 @@ class AutenticacionIntegracionTest {
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper json;
   @Autowired UsuarioRepositorio usuarios;
+  @Autowired ClienteRepositorio clientes;
   @Autowired RecuperacionRepositorio tokens;
   @Autowired PasswordEncoder encoder;
   @MockitoBean JavaMailSender mail;
@@ -39,6 +40,7 @@ class AutenticacionIntegracionTest {
   @BeforeEach
   void limpiar() {
     tokens.deleteAll();
+    clientes.deleteAll();
     usuarios.deleteAll();
     reset(mail);
   }

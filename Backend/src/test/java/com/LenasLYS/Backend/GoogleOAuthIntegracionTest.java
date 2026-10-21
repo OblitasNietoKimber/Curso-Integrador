@@ -44,11 +44,13 @@ class GoogleOAuthIntegracionTest {
   @Autowired MockMvc mvc;
   @Autowired ObjectMapper json;
   @Autowired UsuarioRepositorio usuarios;
+  @Autowired ClienteRepositorio clientes;
   @Autowired RecuperacionRepositorio tokens;
 
   @BeforeEach
   void limpiar() {
     tokens.deleteAll();
+    clientes.deleteAll();
     usuarios.deleteAll();
     proveedor.nonce = "";
   }
@@ -121,7 +123,7 @@ class GoogleOAuthIntegracionTest {
     var u = usuarios.findByGoogleSub("google-sub-123").orElseThrow();
     assertNull(u.getPasswordHash());
     assertEquals(Usuario.Rol.CLIENTE, u.getRol());
-    assertEquals("", u.getTelefono());
+    assertEquals("", clientes.findByUsuarioId(u.getId()).orElseThrow().getTelefono());
     callback("changed-email");
     assertEquals(1, usuarios.count());
     assertEquals(u.getId(), usuarios.findByGoogleSub("google-sub-123").orElseThrow().getId());
@@ -187,7 +189,12 @@ class GoogleOAuthIntegracionTest {
                 .contentType("application/json")
                 .content(cuenta))
         .andExpect(status().isOk());
-    assertEquals("", usuarios.findByGoogleSub("google-sub-123").orElseThrow().getTelefono());
+    assertEquals(
+        "",
+        clientes
+            .findByUsuarioId(usuarios.findByGoogleSub("google-sub-123").orElseThrow().getId())
+            .orElseThrow()
+            .getTelefono());
   }
 
   @Test

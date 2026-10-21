@@ -25,12 +25,14 @@ class SegundoFactorIntegracionTest {
   @Autowired org.springframework.test.web.servlet.MockMvc mvc;
   @Autowired ObjectMapper json;
   @Autowired UsuarioRepositorio usuarios;
+  @Autowired ClienteRepositorio clientes;
   @Autowired RecuperacionRepositorio tokens;
   final String email = "seguridad@example.com";
 
   @BeforeEach
   void limpiar() {
     tokens.deleteAll();
+    clientes.deleteAll();
     usuarios.deleteAll();
   }
 
