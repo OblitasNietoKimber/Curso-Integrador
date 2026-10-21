@@ -1,0 +1,2 @@
+ALTER TABLE usuarios ADD COLUMN google_sub VARCHAR(255) UNIQUE;
+ALTER TABLE usuarios ALTER COLUMN password_hash DROP NOT NULL;

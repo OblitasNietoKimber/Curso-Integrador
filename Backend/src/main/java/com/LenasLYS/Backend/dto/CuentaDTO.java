@@ -18,7 +18,7 @@ public record CuentaDTO(
           String photo,
       @NotBlank @Size(max = 120) String name,
       @NotBlank @Email @Size(max = 254) String email,
-      @NotBlank @Pattern(regexp = "(?:9[0-9]{8}|\\+[1-9][0-9]{6,14})") String phone,
+      @NotNull @Pattern(regexp = "(?:|9[0-9]{8}|\\+[1-9][0-9]{6,14})") String phone,
       @NotNull @Pattern(regexp = "DNI|CE|Pasaporte|RUC") String documentType,
       @NotNull @Size(max = 20) String document,
       @NotNull @Pattern(regexp = "|[0-9]{4}-[0-9]{2}-[0-9]{2}") String birthday,

@@ -87,7 +87,9 @@ public class CuentaServicio {
           HttpStatus.BAD_REQUEST, "Selecciona solo una referencia predeterminada.");
     u.setNombre(c.profile().name().trim());
     u.setTelefono(
-        c.profile().phone().startsWith("+") ? c.profile().phone() : "+51" + c.profile().phone());
+        (c.profile().phone().isEmpty() || c.profile().phone().startsWith("+"))
+            ? c.profile().phone()
+            : "+51" + c.profile().phone());
     try {
       u.setCuenta(json.writeValueAsString(c));
     } catch (Exception e) {

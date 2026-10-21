@@ -72,6 +72,10 @@ public class UsuarioServicio {
   public void cambiarClave(Authentication auth, CambiarClave dto) {
     Usuario u = actual(auth);
     validarClave(dto.next());
+    if (u.getPasswordHash() == null)
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST,
+          "Tu cuenta usa Google. Para crear una contraseña, solicita un enlace de recuperación.");
     if (!encoder.matches(dto.previous(), u.getPasswordHash()))
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST, "La contraseña actual es incorrecta.");

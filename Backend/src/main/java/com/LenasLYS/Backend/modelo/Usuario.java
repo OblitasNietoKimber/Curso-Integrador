@@ -22,8 +22,11 @@ public class Usuario {
   @Column(nullable = false, length = 25)
   private String telefono;
 
-  @Column(name = "password_hash", nullable = false, length = 100)
+  @Column(name = "password_hash", length = 100)
   private String passwordHash;
+
+  @Column(name = "google_sub", unique = true, length = 255)
+  private String googleSub;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
