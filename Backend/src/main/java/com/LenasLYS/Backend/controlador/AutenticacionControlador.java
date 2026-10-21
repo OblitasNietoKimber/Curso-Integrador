@@ -49,7 +49,7 @@ public class AutenticacionControlador {
     req.changeSessionId();
     var u = usuarios.actual(auth);
     session.setAttribute("authVersion", u.getVersionSesion());
-    session.setMaxInactiveInterval(dto.remember() ? 604800 : 1800);
+    session.setMaxInactiveInterval(Boolean.TRUE.equals(dto.remember()) ? 604800 : 1800);
     var context = SecurityContextHolder.createEmptyContext();
     context.setAuthentication(auth);
     SecurityContextHolder.setContext(context);
@@ -63,7 +63,7 @@ public class AutenticacionControlador {
             .secure(secure || req.isSecure())
             .sameSite("Lax")
             .path("/")
-            .maxAge(dto.remember() ? Duration.ofDays(7) : Duration.ofSeconds(-1))
+            .maxAge(Boolean.TRUE.equals(dto.remember()) ? Duration.ofDays(7) : Duration.ofSeconds(-1))
             .build()
             .toString());
     return usuarios.sesion(u);

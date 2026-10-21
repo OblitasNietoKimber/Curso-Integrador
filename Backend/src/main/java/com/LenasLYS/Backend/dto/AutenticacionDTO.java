@@ -15,7 +15,7 @@ public final class AutenticacionDTO {
   public record Login(
       @NotBlank @Email @Size(max = 254) String email,
       @NotBlank @Size(max = 72) String password,
-      boolean remember) {}
+      Boolean remember) {}
 
   public record Correo(@NotBlank @Email @Size(max = 254) String email) {}
 
