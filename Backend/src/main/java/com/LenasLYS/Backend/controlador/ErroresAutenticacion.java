@@ -7,7 +7,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import java.util.Map;
-@RestControllerAdvice(assignableTypes={AutenticacionControlador.class})
+@RestControllerAdvice(assignableTypes={AutenticacionControlador.class,CuentaControlador.class})
 public class ErroresAutenticacion {
  @ExceptionHandler(AuthenticationException.class) ResponseEntity<?> credenciales(){return ResponseEntity.status(401).body(Map.of("message","Correo o contraseña incorrectos."));}
  @ExceptionHandler(MethodArgumentNotValidException.class) ResponseEntity<?> validacion(MethodArgumentNotValidException ex){return ResponseEntity.badRequest().body(Map.of("message","Revisa los datos ingresados.","fields",ex.getBindingResult().getFieldErrors().stream().map(e->e.getField()).distinct().toList()));}
