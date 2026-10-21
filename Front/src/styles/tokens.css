@@ -1,4 +1,3 @@
-@font-face { font-family: 'Knewave'; src: url('/fonts/Knewave.ttf') format('truetype'); font-weight: 400; font-display: swap; }
 @font-face { font-family: 'Caveat'; src: url('/fonts/Caveat.ttf') format('truetype'); font-weight: 400 700; font-display: swap; }
 @font-face {
   font-family: 'DM Sans';
@@ -11,10 +10,6 @@
   color: #08080b;
   background: #fff;
   font-synthesis: none;
-  --font-body: 'DM Sans', Arial, sans-serif;
-  --font-script: 'Caveat', cursive;
-  --font-display: 'Knewave', 'Caveat', cursive;
-  --home-cream: #fcf6ee;
   --red: #ed0000;
   --button-red: #ce0014;
   --muted: #5d7097;
