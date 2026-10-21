@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { useSession } from '../services/session';
+import { useAccount } from '../features/account/accountStore';
+import { displayFirstName } from '../services/displayName';
 import { Icon } from "./Icon";
 
 const sections = [
@@ -25,6 +28,8 @@ export function Header({
     searchHref?: string;
   };
 }) {
+  const { user } = useSession();
+  const { profile } = useAccount();
   const active = activeSection ?? "Carta";
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -98,11 +103,11 @@ export function Header({
         )}
         <a
           className="login-link"
-          aria-label={"Iniciar sesión"}
-          href={"/iniciar-sesion"}
+          aria-label={user ? "Mi cuenta" : "Iniciar sesión"}
+          href={user ? "/mi-cuenta" : "/iniciar-sesion"}
         >
           <Icon name="user" />
-          {"Iniciar sesión"}
+          {user ? displayFirstName(profile.name || user.name) : "Iniciar sesión"}
         </a>
         <span className="header-divider" aria-hidden="true" />
         <button
@@ -138,10 +143,10 @@ export function Header({
           </button>
         ))}
         <a
-          href={"/iniciar-sesion"}
+          href={user ? "/mi-cuenta" : "/iniciar-sesion"}
           onClick={() => setMenuOpen(false)}
         >
-          {"Iniciar sesión"}
+          {user ? displayFirstName(profile.name || user.name) : "Iniciar sesión"}
         </a>
       </nav>
     </header>

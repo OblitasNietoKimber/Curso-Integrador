@@ -20,16 +20,17 @@ export function AccountPayments() {
     expiry: "",
   });
   const [message, setMessage] = useState("");
-  function save() {
+  async function save() {
     try {
-      updateAccount({
+      const saved = await updateAccount({
         cards: [
           ...account.cards,
           { ...draft, id: crypto.randomUUID(), primary: !account.cards.length },
         ],
       });
+      if (!saved) return;
       setAdding(false);
-      setMessage("Referencia añadida a la vista previa.");
+      setMessage("Referencia guardada.");
     } catch {
       setMessage(
         "No se pudo guardar la referencia. Revisa el espacio del navegador.",
@@ -116,8 +117,7 @@ export function AccountPayments() {
               key={method.id}
               aria-pressed={account.preferredPayment === method.id}
               onClick={() => {
-                updateAccount({ preferredPayment: method.id });
-                setMessage("Preferencia aplicada a la vista previa.");
+                void updateAccount({ preferredPayment: method.id }).then(saved => setMessage(saved ? "Preferencia guardada." : "No se pudo guardar la preferencia."));
               }}
             >
               {method.image ? (

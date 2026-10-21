@@ -7,11 +7,11 @@ export function AccountAddresses() {
   const account = useAccount();
   const [draft, setDraft] = useState<AccountAddress | null>(null);
   const [removing, setRemoving] = useState<AccountAddress | null>(null);
-  function save(event: FormEvent<HTMLFormElement>) {
+  async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); if (!draft) return;
     const item = { ...draft, street: draft.street.trim(), district: draft.district.trim(), label: draft.label.trim(), primary: draft.primary || !account.addresses.length };
     if (!item.street || !item.district || !item.label) return;
-    updateAccount({ addresses: [...account.addresses.filter(a => a.id !== item.id).map(a => item.primary ? { ...a, primary: false } : a), item] }); setDraft(null);
+    const saved = await updateAccount({ addresses: [...account.addresses.filter(a => a.id !== item.id).map(a => item.primary ? { ...a, primary: false } : a), item] }); if (saved) setDraft(null);
   }
   return <>
     <div className="account-row-heading"><h2>Direcciones de entrega</h2><button className="info-button" onClick={() => setDraft(empty())}><Icon name="pin" />Agregar dirección</button></div>

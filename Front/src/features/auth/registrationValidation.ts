@@ -9,7 +9,7 @@ export function registrationError(field: RegistrationField, values: Registration
     case 'name': return !values.name.trim() ? 'Ingresa tus nombres y apellidos.' : !/\p{L}/u.test(values.name) || /[\p{N}\p{C}]/u.test(values.name) ? 'Ingresa un nombre válido, sin números.' : '';
     case 'email': return !values.email.trim() ? 'Ingresa tu correo electrónico.' : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim()) ? 'Ingresa un correo válido, por ejemplo nombre@correo.com.' : '';
     case 'phone': return validateCellphone(values.phone, country).error;
-    case 'password': return !values.password ? 'Crea una contraseña.' : values.password.length < 8 ? 'Usa al menos 8 caracteres.' : '';
+    case 'password': return !values.password ? 'Crea una contraseña.' : values.password.length < 8 ? 'Usa al menos 8 caracteres.' : new TextEncoder().encode(values.password).length > 72 ? 'Usa una contraseña de hasta 72 bytes.' : '';
     case 'confirmation': return !values.confirmation ? 'Confirma tu contraseña.' : values.confirmation !== values.password ? 'Las contraseñas no coinciden.' : '';
     case 'terms': return values.terms ? '' : 'Acepta los términos y la política de privacidad para continuar.';
   }

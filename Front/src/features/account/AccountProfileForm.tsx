@@ -1,14 +1,10 @@
 import { useRef, useState } from "react";
-async function previewPasswordChange() { throw new Error('Vista previa: el cambio de contraseña todavía no está disponible.'); }
+import { changePassword } from '../../services/authService';
 import { profilePhoto } from "../../services/profilePhoto";
 import { Icon } from "../../components/Icon";
-import { resetAccount, updateAccount, useAccount } from "./accountStore";
+import { updateAccount, useAccount } from "./accountStore";
 import { AccountDialog } from "./AccountShared";
-export function AccountProfileForm({
-  onNavigate,
-}: {
-  onNavigate: (path: string) => void;
-}) {
+export function AccountProfileForm({ onNavigate }: { onNavigate: (path: string) => void }) {
   const account = useAccount();
   const [today] = useState(() => new Date().toLocaleDateString("en-CA"));
   const [draft, setDraft] = useState(account.profile);
@@ -33,16 +29,16 @@ export function AccountProfileForm({
     <>
       <form
         className="account-form info-card account-profile-fields"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
           try {
-            updateAccount({
+            const saved = await updateAccount({
               profile: {
                 ...draft,
                 name: `${first.trim()} ${last.trim()}`.trim(),
               },
             });
-            setMessage("Cambios aplicados a la vista previa. Se restablecen al recargar.");
+            setMessage(saved ? "Datos guardados correctamente." : "No se pudieron guardar los datos.");
           } catch (err) {
             setMessage(
               err instanceof Error ? err.message : "No se pudo guardar.",
@@ -117,6 +113,7 @@ export function AccountProfileForm({
               type="email"
               maxLength={120}
               autoComplete="email"
+              readOnly
               value={draft.email}
               onChange={(e) => setDraft({ ...draft, email: e.target.value })}
             />
@@ -215,13 +212,6 @@ export function AccountProfileForm({
           >
             Preferencias de comunicación
           </button>
-          <button
-            className="account-text-button danger"
-            type="button"
-            onClick={() => setDialog("Restablecer datos")}
-          >
-            Restablecer datos locales
-          </button>
         </details>
       </form>
       <section className="info-card account-security">
@@ -255,12 +245,12 @@ export function AccountProfileForm({
               className="account-form"
               onSubmit={(e) => {
                 e.preventDefault();
-                void previewPasswordChange()
+                void changePassword(previous, next)
                   .then(() => {
                     setDialog("");
                     setPrevious("");
                     setNext("");
-                    setMessage("Contraseña actualizada.");
+                    setMessage("Contraseña actualizada. Vuelve a iniciar sesión.");
                   })
                   .catch((err) => setMessage(err.message));
               }}
@@ -291,22 +281,7 @@ export function AccountProfileForm({
               </button>
               {message && <p role="alert">{message}</p>}
             </form>
-          ) : (
-            <>
-              <p>
-                Se restablecerán los datos de ejemplo de esta vista previa.
-              </p>
-              <button
-                className="primary-button"
-                onClick={() => {
-                  resetAccount();
-                  onNavigate("/mi-cuenta");
-                }}
-              >
-                Restablecer datos
-              </button>
-            </>
-          )}
+          ) : null}
         </AccountDialog>
       )}
     </>

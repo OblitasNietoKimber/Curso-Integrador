@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useSession } from '../services/session';
+import { useAccount } from '../features/account/accountStore';
+import { displayFirstName } from '../services/displayName';
 import { Icon } from './Icon';
 import { usarCarrito } from '../hooks/usarCarrito';
 
@@ -22,6 +25,8 @@ export function BarraNavegacion({
   alNavegar,
   busqueda,
 }: PropiedadesBarraNavegacion) {
+  const { user } = useSession();
+  const { profile } = useAccount();
   const { cantidadTotal } = usarCarrito();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -112,15 +117,15 @@ export function BarraNavegacion({
 
         <a
           className="login-link"
-          aria-label="Iniciar Sesión"
-          href="/iniciar-sesion"
+          aria-label={user ? "Mi cuenta" : "Iniciar Sesión"}
+          href={user ? "/mi-cuenta" : "/iniciar-sesion"}
           onClick={e => {
             e.preventDefault();
-            navigate('/iniciar-sesion');
+            navigate(user ? '/mi-cuenta' : '/iniciar-sesion');
           }}
         >
           <Icon name="user" />
-          <span>Iniciar Sesión</span>
+          <span>{user ? displayFirstName(profile.name || user.name) : 'Iniciar Sesión'}</span>
         </a>
 
         <span className="header-divider" aria-hidden="true" />
@@ -170,13 +175,13 @@ export function BarraNavegacion({
           Carrito ({cantidadTotal})
         </button>
         <a
-          href="/iniciar-sesion"
+          href={user ? "/mi-cuenta" : "/iniciar-sesion"}
           onClick={e => {
             e.preventDefault();
-            navigate('/iniciar-sesion');
+            navigate(user ? '/mi-cuenta' : '/iniciar-sesion');
           }}
         >
-          Iniciar Sesión
+          {user ? 'Mi cuenta' : 'Iniciar Sesión'}
         </a>
       </nav>
     </header>
