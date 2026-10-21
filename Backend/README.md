@@ -21,7 +21,33 @@ En PowerShell: `.\mvnw.cmd spring-boot:run`. En Linux, si falta permiso de ejecu
 
 4. En otra terminal, desde `Front/`: `npm ci` y `npm run dev`. Vite reenvía `/api` a `http://localhost:8080`. No abrir el frontend como un archivo HTML.
 
-Flyway aplica `V1__usuarios_y_recuperacion.sql` para las tablas `usuarios` y `recuperaciones`. Si ya existe un esquema del catálogo, se establece su línea base en 0 sin borrar sus tablas. Se mantiene `ddl-auto=update` que ya usa el catálogo. No se crean cuentas de prueba ni administradores automáticamente: el registro público asigna siempre `CLIENTE`.
+Flyway aplica V1–V4: usuarios y recuperación, identidad Google, segundo factor y separación de roles/clientes. Si ya existe un esquema del catálogo, se establece su línea base en 0 sin borrar sus tablas. Se mantiene `ddl-auto=update` que ya usa el catálogo. No se crean cuentas de prueba ni administradores automáticamente: el registro público asigna siempre `CLIENTE`.
+
+## Usuarios, roles y clientes
+
+| Tabla | Responsabilidad |
+| --- | --- |
+| `roles` | Catálogo: CLIENTE, ADMINISTRADOR, CAJA, COCINA y DELIVERY. Se inicializa por migración. |
+| `usuarios` | Todas las cuentas: nombre de identificación, correo único, hash de contraseña, identidad Google, segundo factor, estado y `id_rol` como clave foránea. |
+| `clientes` | Perfil comercial: nombre, teléfono, foto, documento, nacimiento, género y notas. Direcciones, referencias de pago y preferencias se conservan en `cuenta`, sin duplicar el perfil ni las credenciales. |
+
+`clientes.id_usuario` es opcional y único. Un cliente con cuenta tiene un usuario y un cliente relacionado; un cliente presencial puede existir sin cuenta. El personal puede tener únicamente usuario. Si se elimina un usuario, el cliente se conserva con `id_usuario = NULL`; no se eliminan sus datos comerciales automáticamente.
+
+El registro público, tanto con contraseña como con Google, crea usuario con rol CLIENTE y su cliente en una misma transacción. El acceso repetido por Google reutiliza ambos registros. Los roles del personal no pueden elegirse desde el formulario de registro. La autenticación y Seguridad siguen disponibles para el personal; el perfil comercial de Mi cuenta es exclusivo de clientes. Las pantallas operativas de cada rol corresponden a sus módulos.
+
+La migración Java `V4__roles_y_clientes` mueve automáticamente los perfiles existentes de usuarios CLIENTE, conservando sus IDs de acceso, correos, contraseñas, Google, segundo factor y versiones de sesión. Mantiene también los roles del personal y retira de usuarios las columnas antiguas `rol`, `telefono` y `cuenta` tras trasladar la información del cliente. El nombre de identificación se mantiene en usuarios conforme al modelo físico. No crear ni modificar estas tablas manualmente; reiniciar el backend aplica la migración. No requiere cambios adicionales en `.env`. En una base con datos, hacer una copia antes de actualizar.
+
+Para revisar las relaciones en pgAdmin:
+
+```sql
+SELECT u.id, u.email, r.nombre AS rol,
+       c.id AS id_cliente, c.nombre, c.telefono
+FROM public.usuarios u
+JOIN public.roles r ON r.id_rol = u.id_rol
+LEFT JOIN public.clientes c ON c.id_usuario = u.id;
+```
+
+Las pruebas de separación incluyen actualización desde V3 con datos existentes, preservación de seguridad, registro normal/Google, personal sin perfil de cliente, cliente sin cuenta y restricciones de claves foráneas y unicidad. Se ejecutan sobre H2 en modo PostgreSQL, sin acceder a la base local del usuario.
 
 ## API de autenticación
 
@@ -41,7 +67,7 @@ Las peticiones usan la cookie `LYSSESSION` HttpOnly y `credentials: include`. An
 
 Las contraseñas se guardan con BCrypt, nunca se devuelven por API y se validan de 8 caracteres a 72 bytes UTF-8. El login cambia el identificador de sesión. El cambio o recuperación de contraseña incrementa la versión de sesión para invalidar accesos anteriores. Los endpoints públicos de acceso y recuperación tienen un límite local de 60 solicitudes por IP y ruta cada 15 minutos; para varias instancias se debe sustituir por un limitador compartido.
 
-`/api/account` identifica al propietario desde la sesión: no recibe un ID de usuario editable. Guarda perfil, foto, direcciones, referencias de tarjetas y preferencias. Solo admite marca y últimos cuatro dígitos de tarjeta, nunca PAN completo ni CVV. El cambio de correo no está habilitado porque requiere un flujo de verificación adicional. Las notificaciones, favoritos y pedidos se integran con sus módulos; aquí no se fabrican registros.
+`/api/account` es exclusivo de usuarios con rol `CLIENTE` e identifica al propietario desde la sesión: no recibe un ID de usuario editable. Guarda perfil, foto, direcciones, referencias de tarjetas y preferencias. Solo admite marca y últimos cuatro dígitos de tarjeta, nunca PAN completo ni CVV. El cambio de correo no está habilitado porque requiere un flujo de verificación adicional. Las notificaciones, favoritos y pedidos se integran con sus módulos; aquí no se fabrican registros.
 
 ## Recuperación por correo
 
