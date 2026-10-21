@@ -28,6 +28,7 @@ public class ConfiguracionSeguridad {
       var u =
           repo.findByEmail(email.trim().toLowerCase(java.util.Locale.ROOT))
               .orElseThrow(() -> new UsernameNotFoundException("Credenciales incorrectas"));
+      if (u.getPasswordHash() == null) throw new UsernameNotFoundException("La cuenta usa Google");
       return User.withUsername(u.getId().toString())
           .password(u.getPasswordHash())
           .roles(u.getRol().name())
@@ -50,7 +51,10 @@ public class ConfiguracionSeguridad {
 
   @Bean
   SecurityFilterChain cadenaDeSeguridad(
-      HttpSecurity http, SecurityContextRepository repository, UsuarioRepositorio usuarios)
+      HttpSecurity http,
+      SecurityContextRepository repository,
+      UsuarioRepositorio usuarios,
+      org.springframework.beans.factory.ObjectProvider<GoogleOAuthConfiguracion> google)
       throws Exception {
     http.cors(Customizer.withDefaults())
         .csrf(Customizer.withDefaults())
@@ -65,6 +69,9 @@ public class ConfiguracionSeguridad {
                     .permitAll()
                     .requestMatchers(
                         "/error",
+                        "/api/auth/google",
+                        "/oauth2/authorization/google",
+                        "/login/oauth2/code/google",
                         "/api/auth/csrf",
                         "/api/auth/login",
                         "/api/auth/register",
@@ -106,6 +113,7 @@ public class ConfiguracionSeguridad {
         .addFilterBefore(
             new IntentosAutenticacionFiltro(),
             org.springframework.security.web.csrf.CsrfFilter.class);
+    if (google.getIfAvailable() != null) google.getObject().configurar(http);
     return http.build();
   }
 }

@@ -27,6 +27,31 @@ public class AutenticacionControlador {
   @Value("${app.auth.cookie-secure:false}")
   private boolean secure;
 
+  @Value("${app.auth.google-enabled:false}")
+  private boolean googleEnabled;
+
+  @GetMapping("/google")
+  public Map<String, Boolean> google() {
+    return Map.of("enabled", googleEnabled);
+  }
+
+  @PostMapping("/google/link")
+  public Map<String, Boolean> vincularGoogle(Authentication auth, HttpServletRequest req) {
+    if (!googleEnabled)
+      throw new org.springframework.web.server.ResponseStatusException(
+          HttpStatus.SERVICE_UNAVAILABLE, "Google todavía no está configurado.");
+    var u = usuarios.actual(auth);
+    req.getSession()
+        .setAttribute(
+            "googleLink",
+            new GoogleVinculacion(
+                u.getId(), u.getVersionSesion(), java.time.Instant.now().plusSeconds(300)));
+    return Map.of("ok", true);
+  }
+
+  public record GoogleVinculacion(java.util.UUID usuario, long version, java.time.Instant vence)
+      implements java.io.Serializable {}
+
   @GetMapping("/csrf")
   public Map<String, String> csrf(CsrfToken token) {
     return Map.of("token", token.getToken(), "headerName", token.getHeaderName());
@@ -63,7 +88,8 @@ public class AutenticacionControlador {
             .secure(secure || req.isSecure())
             .sameSite("Lax")
             .path("/")
-            .maxAge(Boolean.TRUE.equals(dto.remember()) ? Duration.ofDays(7) : Duration.ofSeconds(-1))
+            .maxAge(
+                Boolean.TRUE.equals(dto.remember()) ? Duration.ofDays(7) : Duration.ofSeconds(-1))
             .build()
             .toString());
     return usuarios.sesion(u);
