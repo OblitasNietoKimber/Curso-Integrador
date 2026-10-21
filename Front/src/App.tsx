@@ -9,6 +9,7 @@ import { RecoveryCard } from './features/auth/RecoveryCard';
 import './styles/login.css';
 import './styles/register.css';
 import './styles/auth-module.css';
+import './styles/auth-responsive.css';
 
 const sections: Record<string, string> = { Inicio: '/', Carta: '/carta', Promociones: '/promociones', Nosotros: '/nosotros', Locales: '/locales', Contacto: '/contacto', 'Pedir ahora': '/carta' };
 export default function App() {
