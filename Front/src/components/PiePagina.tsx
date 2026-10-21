@@ -1,21 +1,17 @@
-import { Icono } from './Icono';
+import { Icon } from './Icon';
+import { SocialIcon, type SocialNetwork } from './SocialIcon';
 
 interface PropiedadesPiePagina {
   alNavegar: (ruta: string) => void;
 }
 
-const enlacesRapidos = [
-  { nombre: 'Inicio', ruta: '/' },
-  { nombre: 'Carta', ruta: '/carta' },
-  { nombre: 'Promociones', ruta: '/promociones' },
-  { nombre: 'Carrito de compras', ruta: '/carrito' },
-];
+const socialNetworks: SocialNetwork[] = ['Facebook', 'Instagram', 'TikTok', 'YouTube'];
 
 const ANIO_ACTUAL = new Date().getFullYear();
 
 export function PiePagina({ alNavegar }: PropiedadesPiePagina) {
   return (
-    <footer className="home-footer" id="pie-pagina">
+    <footer className="home-footer" id="contacto">
       <div className="home-container">
         <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
           <defs>
@@ -50,37 +46,51 @@ export function PiePagina({ alNavegar }: PropiedadesPiePagina) {
           <nav aria-label="Enlaces rápidos">
             <h3>Enlaces rápidos</h3>
             <div>
-              {enlacesRapidos.map(item => (
+              {['Inicio', 'Carta', 'Promociones', 'Carrito'].map(section => (
                 <button
                   type="button"
-                  key={item.nombre}
-                  onClick={() => alNavegar(item.ruta)}
+                  key={section}
+                  onClick={() =>
+                    alNavegar(
+                      section === 'Inicio'
+                        ? '/'
+                        : section === 'Carta'
+                        ? '/carta'
+                        : section === 'Promociones'
+                        ? '/promociones'
+                        : '/carrito'
+                    )
+                  }
                 >
-                  {item.nombre}
+                  {section}
                 </button>
               ))}
             </div>
           </nav>
 
           <div className="footer-contact">
-            <h3>Atención al cliente</h3>
-            <p className="footer-contact-item">
-              <Icono name="phone" /> +51 (01) 719-2020
-            </p>
-            <p className="footer-contact-item">
-              <Icono name="pin" /> Av. Los Conquistadores 450, Lima, Perú
-            </p>
-            <p className="footer-contact-item">
-              <Icono name="clock" /> Lunes a Domingo: 12:00 m. a 11:00 p.m.
-            </p>
+            <h3>Contáctanos</h3>
+            <button type="button" onClick={() => alNavegar('/carta')}>
+              <Icon name="phone" />(01) 700-0000
+            </button>
+            <button type="button" onClick={() => alNavegar('/carta')}>
+              <Icon name="pin" />Lima, Perú
+            </button>
           </div>
 
           <div className="footer-social">
             <h3>Síguenos</h3>
-            <div className="social-links">
-              <span className="social-pill">Facebook</span>
-              <span className="social-pill">Instagram</span>
-              <span className="social-pill">TikTok</span>
+            <div>
+              {socialNetworks.map(name => (
+                <button
+                  type="button"
+                  key={name}
+                  aria-label={name}
+                  onClick={() => {}}
+                >
+                  <SocialIcon name={name} />
+                </button>
+              ))}
             </div>
           </div>
 
@@ -95,9 +105,7 @@ export function PiePagina({ alNavegar }: PropiedadesPiePagina) {
           </span>
           <span>
             Sabor peruano, en cada brasa.{' '}
-            <span className="peru-flag" aria-label="Bandera del Perú" role="img">
-              🇵🇪
-            </span>
+            <span className="peru-flag" aria-label="Perú" role="img" />
           </span>
         </div>
       </div>

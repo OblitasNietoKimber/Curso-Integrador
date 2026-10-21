@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Icono } from './Icono';
+import { Icon } from './Icon';
 import { usarCarrito } from '../hooks/usarCarrito';
 
 interface PropiedadesBarraNavegacion {
@@ -11,10 +11,10 @@ interface PropiedadesBarraNavegacion {
   };
 }
 
-const seccionesPublicas = [
-  { nombre: 'Inicio', ruta: '/' },
-  { nombre: 'Carta', ruta: '/carta' },
-  { nombre: 'Promociones', ruta: '/promociones' },
+const sections = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Carta', path: '/carta' },
+  { name: 'Promociones', path: '/promociones' },
 ];
 
 export function BarraNavegacion({
@@ -23,20 +23,20 @@ export function BarraNavegacion({
   busqueda,
 }: PropiedadesBarraNavegacion) {
   const { cantidadTotal } = usarCarrito();
-  const [menuAbierto, setMenuAbierto] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (!menuAbierto) return;
-    const cerrarConEscape = (evento: KeyboardEvent) => {
-      if (evento.key === 'Escape') setMenuAbierto(false);
+    if (!menuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMenuOpen(false);
     };
-    document.addEventListener('keydown', cerrarConEscape);
-    return () => document.removeEventListener('keydown', cerrarConEscape);
-  }, [menuAbierto]);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
 
-  function navegarA(ruta: string) {
-    setMenuAbierto(false);
-    alNavegar(ruta);
+  function navigate(path: string) {
+    setMenuOpen(false);
+    alNavegar(path);
   }
 
   return (
@@ -45,9 +45,9 @@ export function BarraNavegacion({
         className="brand"
         href="/"
         aria-label="Leñas y Sabores, inicio"
-        onClick={evento => {
-          evento.preventDefault();
-          navegarA('/');
+        onClick={e => {
+          e.preventDefault();
+          navigate('/');
         }}
       >
         <img
@@ -58,111 +58,126 @@ export function BarraNavegacion({
         />
       </a>
 
-      {/* Navegación Escritorio */}
       <nav className="desktop-nav" aria-label="Navegación principal">
-        {seccionesPublicas.map(seccion => (
+        {sections.map(section => (
           <button
-            key={seccion.nombre}
+            key={section.name}
             type="button"
-            className={seccion.nombre === seccionActiva ? 'nav-link active' : 'nav-link'}
-            aria-current={seccion.nombre === seccionActiva ? 'page' : undefined}
-            onClick={() => navegarA(seccion.ruta)}
+            className={section.name === seccionActiva ? 'nav-link active' : 'nav-link'}
+            aria-current={section.name === seccionActiva ? 'page' : undefined}
+            onClick={() => navigate(section.path)}
           >
-            {seccion.nombre}
+            {section.name}
           </button>
         ))}
       </nav>
 
-      {/* Acciones del Header */}
       <div className="header-actions">
         {busqueda && (
           <>
             <label className="carta-header-search">
-              <Icono name="search" />
+              <Icon name="search" />
               <input
                 type="search"
                 aria-label="Buscar productos"
                 placeholder="Buscar productos…"
                 value={busqueda.consulta}
-                onChange={e => busqueda.alBuscar(e.target.value)}
+                onChange={event => busqueda.alBuscar(event.target.value)}
               />
             </label>
-            <button
-              type="button"
+            <a
+              href="#carta-search"
               className="carta-search-toggle"
               aria-label="Buscar en la carta"
-              onClick={() => {
-                const el = document.getElementById('carta-search');
-                el?.scrollIntoView({ behavior: 'smooth' });
+              onClick={e => {
+                if (window.location.pathname !== '/carta') {
+                  e.preventDefault();
+                  navigate('/carta#carta-search');
+                }
               }}
             >
-              <Icono name="search" />
+              <Icon name="search" />
+            </a>
+            <button
+              type="button"
+              className="carta-cart-toggle"
+              aria-label={`Ver pedido, ${cantidadTotal} productos`}
+              onClick={() => navigate('/carrito')}
+            >
+              <Icon name="cart" />
+              {cantidadTotal > 0 && <span>{cantidadTotal}</span>}
             </button>
           </>
         )}
 
-        {/* Botón Carrito con contador sincronizado */}
-        <button
-          type="button"
-          className="carta-cart-toggle"
-          aria-label={`Ver carrito, ${cantidadTotal} productos seleccionados`}
-          onClick={() => navegarA('/carrito')}
+        <a
+          className="login-link"
+          aria-label="Iniciar Sesión"
+          href="/iniciar-sesion"
+          onClick={e => {
+            e.preventDefault();
+            navigate('/iniciar-sesion');
+          }}
         >
-          <Icono name="cart" />
-          {cantidadTotal > 0 && <span className="cart-badge">{cantidadTotal}</span>}
-        </button>
+          <Icon name="user" />
+          <span>Iniciar Sesión</span>
+        </a>
 
         <span className="header-divider" aria-hidden="true" />
 
-        {/* Botón Pedir Ahora -> Lleva al carrito */}
         <button
           type="button"
           className="order-button"
           aria-label="Pedir ahora"
-          onClick={() => navegarA('/carrito')}
+          onClick={() => navigate('/carrito')}
         >
           <span className="order-glare" aria-hidden="true" />
-          <Icono name="cart" />
+          <Icon name="cart" />
           <span>Pedir ahora</span>
         </button>
 
-        {/* Interruptor Menú Móvil */}
         <button
           type="button"
           className="menu-toggle"
-          aria-expanded={menuAbierto}
-          aria-controls="navegacion-movil"
-          aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
-          onClick={() => setMenuAbierto(!menuAbierto)}
+          aria-expanded={menuOpen}
+          aria-controls="mobile-navigation"
+          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          onClick={() => setMenuOpen(!menuOpen)}
         >
-          <Icono name={menuAbierto ? 'close' : 'menu'} />
+          <Icon name={menuOpen ? 'close' : 'menu'} />
         </button>
       </div>
 
-      {/* Menú Móvil Desplegable */}
       <nav
-        id="navegacion-movil"
-        className={`mobile-nav ${menuAbierto ? 'open' : ''}`}
+        id="mobile-navigation"
+        className="mobile-nav"
         aria-label="Navegación móvil"
-        hidden={!menuAbierto}
+        hidden={!menuOpen}
       >
-        {seccionesPublicas.map(seccion => (
+        {sections.map(section => (
           <button
             type="button"
-            key={seccion.nombre}
-            className={seccion.nombre === seccionActiva ? 'active' : ''}
-            onClick={() => navegarA(seccion.ruta)}
+            key={section.name}
+            onClick={() => navigate(section.path)}
           >
-            {seccion.nombre}
+            {section.name}
           </button>
         ))}
         <button
           type="button"
-          className="mobile-cart-btn"
-          onClick={() => navegarA('/carrito')}
+          onClick={() => navigate('/carrito')}
         >
-          <Icono name="cart" /> Carrito ({cantidadTotal})
+          Carrito ({cantidadTotal})
         </button>
+        <a
+          href="/iniciar-sesion"
+          onClick={e => {
+            e.preventDefault();
+            navigate('/iniciar-sesion');
+          }}
+        >
+          Iniciar Sesión
+        </a>
       </nav>
     </header>
   );

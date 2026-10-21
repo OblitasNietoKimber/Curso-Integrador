@@ -1,45 +1,33 @@
-import { Icono, type NombreIcono } from './Icono';
-import { usarCarrito } from '../hooks/usarCarrito';
+import { Icon, type IconName } from './Icon';
 
-interface EnlaceNavegacion {
-  nombre: string;
-  ruta: string;
-  icono: NombreIcono;
-}
-
-const enlaces: EnlaceNavegacion[] = [
-  { nombre: 'Inicio', ruta: '/', icono: 'home' },
-  { nombre: 'Carta', ruta: '/carta', icono: 'cutlery' },
-  { nombre: 'Promociones', ruta: '/promociones', icono: 'tag' },
-  { nombre: 'Carrito', ruta: '/carrito', icono: 'cart' },
-];
-
-export function NavegacionInferior({
-  activa,
-  alNavegar,
-}: {
+interface PropiedadesNavegacionInferior {
   activa: string;
   alNavegar: (ruta: string) => void;
-}) {
-  const { cantidadTotal } = usarCarrito();
+}
 
+const links: { name: string; icon: IconName; path: string }[] = [
+  { name: 'Inicio', icon: 'home', path: '/' },
+  { name: 'Carta', icon: 'cutlery', path: '/carta' },
+  { name: 'Promociones', icon: 'tag', path: '/promociones' },
+  { name: 'Carrito', icon: 'cart', path: '/carrito' },
+];
+
+export function NavegacionInferior({ activa, alNavegar }: PropiedadesNavegacionInferior) {
   return (
-    <nav className="carta-bottom-nav" aria-label="Navegación inferior">
-      {enlaces.map(item => (
+    <nav
+      className="carta-bottom-nav"
+      aria-label="Navegación inferior"
+      style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}
+    >
+      {links.map(item => (
         <button
-          key={item.nombre}
+          key={item.name}
           type="button"
-          aria-current={item.nombre === activa ? 'page' : undefined}
-          className={item.nombre === activa ? 'active' : ''}
-          onClick={() => alNavegar(item.ruta)}
+          aria-current={item.name === activa ? 'page' : undefined}
+          onClick={() => alNavegar(item.path)}
         >
-          <div className="nav-icon-wrapper" style={{ position: 'relative', display: 'inline-block' }}>
-            <Icono name={item.icono} />
-            {item.nombre === 'Carrito' && cantidadTotal > 0 && (
-              <span className="bottom-cart-badge">{cantidadTotal}</span>
-            )}
-          </div>
-          <span>{item.nombre}</span>
+          <Icon name={item.icon} />
+          <span>{item.name}</span>
         </button>
       ))}
     </nav>
