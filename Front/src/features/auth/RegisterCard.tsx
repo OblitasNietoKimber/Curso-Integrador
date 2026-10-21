@@ -57,7 +57,7 @@ export function RegisterCard({ onLogin, onLegal }: Props) {
       <button className="primary-button sign-in-button" type="submit" disabled={pending}><span>{pending && provider === 'password' ? 'Creando cuenta…' : 'Crear cuenta'}</span>{pending && provider === 'password' ? <span className="spinner" aria-hidden="true" /> : <Icon name={status === 'success' ? 'check' : 'arrow'} />}</button>
     </form>
     <div className="or-divider"><span>o regístrate con</span></div>
-    <button className="google-button" type="button" disabled={pending} onClick={() => void run(() => registrationService.registerWithGoogle(), 'google')}>{pending && provider === 'google' ? <span className="spinner" aria-hidden="true" /> : <GoogleIcon />}<span>{pending && provider === 'google' ? 'Conectando con Google…' : 'Continuar con Google'}</span></button>
+    <button className="google-button" type="button" disabled={pending} onClick={() => { if (!values.terms) { setTouched(current => ({ ...current, terms: true })); document.getElementById('register-terms')?.focus(); return; } void run(() => registrationService.registerWithGoogle(), 'google'); }}>{pending && provider === 'google' ? <span className="spinner" aria-hidden="true" /> : <GoogleIcon />}<span>{pending && provider === 'google' ? 'Conectando con Google…' : 'Continuar con Google'}</span></button>
     <div className="register-divider"><span>¿Ya tienes cuenta?</span><button type="button" className="text-link" onClick={onLogin}>Iniciar sesión</button></div>
     {message && <p className={`auth-message ${status}`} role={status === 'error' ? 'alert' : 'status'}>{status === 'success' && <Icon name="check" />}<span>{message}</span></p>}
   </section>;

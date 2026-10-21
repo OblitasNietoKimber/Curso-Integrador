@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { changePassword } from '../../services/authService';
+import { changePassword, linkGoogle } from '../../services/authService';
 import { profilePhoto } from "../../services/profilePhoto";
 import { Icon } from "../../components/Icon";
 import { updateAccount, useAccount } from "./accountStore";
@@ -216,6 +216,8 @@ export function AccountProfileForm({ onNavigate }: { onNavigate: (path: string) 
       </form>
       <section className="info-card account-security">
         <h2>Seguridad</h2>
+        <p>Puedes vincular una cuenta de Google con el mismo correo.</p>
+        <button type="button" className="info-button" onClick={() => void linkGoogle().catch(error => setMessage(error.message))}>Vincular Google</button>
         <div>
           <label>
             Contraseña

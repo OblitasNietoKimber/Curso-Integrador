@@ -9,6 +9,14 @@ export function SignInCard({
 }: {
   onHelp: (action: "register" | "recover") => void;
 }) {
+  const googleError = new URLSearchParams(location.search).get('google_error');
+  const googleMessages: Record<string, string> = {
+    account_exists: 'Ya existe una cuenta con ese correo. Inicia sesión con tu contraseña. Después puedes vincular Google desde Mis datos.',
+    account_disabled: 'Esta cuenta está deshabilitada. Contacta con el administrador.',
+    identity_mismatch: 'La cuenta de Google no coincide con el correo de la cuenta que deseas vincular.',
+    identity_invalid: 'Google no pudo confirmar un correo verificado para tu cuenta.',
+    cancelled_or_failed: 'No se completó el acceso con Google. Puedes intentarlo de nuevo.',
+  };
   const [errors, setErrors] = useState<Partial<Record<FieldName, string>>>({});
   const { pending, provider, status, message, submit } = useSignIn();
 
@@ -57,6 +65,7 @@ export function SignInCard({
         </h2>
         <p className="auth-description">Nos alegra verte de nuevo</p>
       </header>
+      {googleError && <p className="auth-message error" role="alert">{googleMessages[googleError] || googleMessages.cancelled_or_failed}</p>}
       <form onSubmit={onSubmit} noValidate aria-busy={pending}>
         <div className="fields">
           <AuthField

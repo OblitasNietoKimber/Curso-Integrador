@@ -25,3 +25,5 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
   if (response.status === 204) return undefined as T;
   return response.json();
 }
+
+export function googleAuthorizationUrl() { return new URL('/oauth2/authorization/google', new URL(base, location.origin)).toString(); }
