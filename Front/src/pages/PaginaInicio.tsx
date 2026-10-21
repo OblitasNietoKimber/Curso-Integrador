@@ -1,7 +1,7 @@
 import { HeroInicio } from '../components/inicio/HeroInicio';
 import { BeneficiosInicio } from '../components/inicio/BeneficiosInicio';
 import { CatalogoInicio } from '../components/inicio/CatalogoInicio';
-import '../styles/home.css';
+import { MembresiaInicio } from '../components/inicio/MembresiaInicio';
 
 interface PropiedadesPaginaInicio {
   alNavegar: (ruta: string) => void;
@@ -13,6 +13,7 @@ export function PaginaInicio({ alNavegar }: PropiedadesPaginaInicio) {
       <HeroInicio alNavegar={alNavegar} />
       <BeneficiosInicio />
       <CatalogoInicio alNavegar={alNavegar} />
+      <MembresiaInicio alNavegar={alNavegar} />
     </main>
   );
 }

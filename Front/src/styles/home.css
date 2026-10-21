@@ -60,7 +60,8 @@
 .specialty-copy { padding: 20px 22px; width: 54%; height: 100%; display: flex; flex-direction: column; align-items: flex-start; }
 .specialty-copy h3 { font-family: Impact, 'Arial Narrow', sans-serif; font-stretch: condensed; text-transform: uppercase; font-weight: 800; font-size: clamp(18px, 1.45vw, 28px); line-height: 1.03; margin: 0 0 7px; letter-spacing: -.025em; }
 .specialty-copy p { font-size: clamp(13px, .9vw, 18px); line-height: 1.2; margin: 0; }
-.round-arrow { display: grid; place-items: center; border-radius: 50%; background: var(--home-red); color: white; width: 44px; height: 44px; margin-top: auto; }
+.round-arrow { display: grid; place-items: center; border-radius: 50%; background: var(--home-red); color: white; width: 44px; height: 44px; min-width: 44px; min-height: 44px; max-width: 44px; max-height: 44px; flex: 0 0 44px; aspect-ratio: 1 / 1; margin-top: auto; }
+.round-arrow svg { width: 20px; height: 20px; flex-shrink: 0; }
 .home-promotions { background: #fff; }
 .home-script { font-family: Caveat, cursive; font-weight: 700; font-style: italic; color: var(--home-red); font-size: 1.35em; line-height: .95; }
 .promotion-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 14px; }
@@ -76,6 +77,13 @@
 .promotion-price sup { font-size: .45em; vertical-align: super; }
 .promotion-duo .promotion-copy { color: #16110b; }
 .promotion-duo .promotion-price { color: #e00000; }
+.promotion-footer-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.promotion-add-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: var(--home-red); color: #fff; border: 1.5px solid rgba(255, 255, 255, 0.7); border-radius: 9999px; padding: 6px 14px; font-size: clamp(12px, 0.85vw, 15px); font-weight: 750; cursor: pointer; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); transition: background-color 150ms, transform 150ms, box-shadow 150ms; white-space: nowrap; flex-shrink: 0; }
+.promotion-add-button:hover { background: #b50000; transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
+.promotion-add-button:active { transform: translateY(1px); }
+.promotion-add-button svg { width: 16px; height: 16px; stroke-width: 2.2; }
+.promotion-duo .promotion-add-button { background: #e00000; border-color: rgba(224, 0, 0, 0.35); }
+.promotion-duo .promotion-add-button:hover { background: #b50000; }
 .footer-phrase::after { content: ''; display: block; height: 3px; width: 60%; margin: 5px auto; background: var(--home-red); transform: rotate(-6deg); }
 .home-footer { --home-red: #ed0000; background: #20201e; color: #ddd; font-size: 13px; }
 .footer-main { display: grid; grid-template-columns: 17% 31% 20% 13% 1fr; align-items: center; gap: 22px; padding-block: 18px; }
@@ -179,7 +187,7 @@
   .specialty-copy { padding: 10px 12px; width: 44%; }
   .specialty-copy h3 { font-size: clamp(16px, 4.2vw, 25px); margin-bottom: 3px; }
   .specialty-copy p { font-size: clamp(11px, 2.8vw, 16px); line-height: 1.1; }
-  .round-arrow { width: 27px; height: 27px; margin-top: 5px; }
+  .round-arrow { width: 27px; height: 27px; min-width: 27px; min-height: 27px; max-width: 27px; max-height: 27px; flex: 0 0 27px; aspect-ratio: 1 / 1; margin-top: 5px; }
   .round-arrow svg { width: 18px; height: 18px; }
   .home-promotions .home-section-heading { align-items: center; flex-wrap: nowrap; }
   .home-promotions h2 { font-size: clamp(23px, 5vw, 31px); }
@@ -192,6 +200,9 @@
   .promotion-copy h3 { font-size: clamp(12px, 3.3vw, 20px); margin: 5px 0 0; }
   .promotion-copy p { font-size: clamp(10px, 2.8vw, 16px); }
   .promotion-price { font-size: clamp(25px, 7vw, 43px); margin-top: 2px; }
+  .promotion-footer-row { margin-top: 2px; gap: 6px; }
+  .promotion-add-button { padding: 3px 8px; font-size: clamp(9px, 2.2vw, 12px); }
+  .promotion-add-button svg { width: 12px; height: 12px; }
   .home-footer { font-size: 10px; }
   .footer-main { grid-template-columns: 28% 1fr; gap: 8px; padding-block: 12px; }
   .footer-main > * + * { padding-left: 10px; }
