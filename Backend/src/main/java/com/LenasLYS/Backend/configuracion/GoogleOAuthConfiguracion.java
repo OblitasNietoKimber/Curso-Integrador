@@ -8,23 +8,19 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.*;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.registration.*;
 import org.springframework.security.oauth2.core.*;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 @Configuration
 @ConditionalOnProperty(name = "app.auth.google-enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class GoogleOAuthConfiguracion {
   private final GoogleUsuarioServicio usuarios;
-  private final SecurityContextRepository contexts;
+  private final com.LenasLYS.Backend.servicio.AccesoSesionServicio accesos;
 
   @Value("${app.auth.google-client-id}")
   private String clientId;
@@ -88,35 +84,14 @@ public class GoogleOAuthConfiguracion {
       try {
         if (!(authentication.getPrincipal() instanceof OidcUser identidad))
           throw GoogleUsuarioServicio.error("identity_invalid");
-        var pending = req.getSession().getAttribute("googleLink");
-        req.getSession().removeAttribute("googleLink");
-        var link =
-            pending
-                    instanceof
-                    com.LenasLYS.Backend.controlador.AutenticacionControlador.GoogleVinculacion v
-                ? v
-                : null;
-        if (link != null && !link.vence().isAfter(java.time.Instant.now()))
-          throw GoogleUsuarioServicio.error("identity_invalid");
-        var u =
-            usuarios.obtenerOCrear(
-                identidad,
-                link == null ? null : link.usuario(),
-                link == null ? null : link.version());
-        var session = req.getSession();
-        session.setMaxInactiveInterval(1800);
-        session.setAttribute("authVersion", u.getVersionSesion());
-        var auth =
-            UsernamePasswordAuthenticationToken.authenticated(
-                u.getId().toString(),
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_" + u.getRol().name())));
-        var context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(auth);
-        SecurityContextHolder.setContext(context);
-        contexts.saveContext(context, req, res);
-        new HttpSessionCsrfTokenRepository().saveToken(null, req, res);
-        res.sendRedirect(frontend.replaceAll("/$", "") + "/mi-cuenta");
+        var u = usuarios.obtenerOCrear(identidad);
+        if (u.getTotpSecret() != null) {
+          accesos.desafiar(u, false, req, res);
+          res.sendRedirect(frontend.replaceAll("/$", "") + "/iniciar-sesion?two_factor=1");
+        } else {
+          accesos.iniciar(u, false, req, res);
+          res.sendRedirect(frontend.replaceAll("/$", "") + "/mi-cuenta");
+        }
       } catch (OAuth2AuthenticationException ex) {
         String code = ex.getError().getErrorCode();
         fallo(

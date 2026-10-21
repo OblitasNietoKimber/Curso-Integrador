@@ -74,6 +74,8 @@ public class ConfiguracionSeguridad {
                         "/login/oauth2/code/google",
                         "/api/auth/csrf",
                         "/api/auth/login",
+                        "/api/auth/2fa/challenge",
+                        "/api/auth/2fa/verify",
                         "/api/auth/register",
                         "/api/auth/forgot-password",
                         "/api/auth/reset-password")

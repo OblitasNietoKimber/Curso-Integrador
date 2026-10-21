@@ -14,6 +14,10 @@ public class IntentosAutenticacionFiltro extends OncePerRequestFilter {
   private static final Set<String> RUTAS =
       Set.of(
           "/api/auth/login",
+          "/api/auth/2fa/verify",
+          "/api/account/security/setup",
+          "/api/account/security/enable",
+          "/api/account/security/disable",
           "/api/auth/register",
           "/api/auth/forgot-password",
           "/api/auth/reset-password");

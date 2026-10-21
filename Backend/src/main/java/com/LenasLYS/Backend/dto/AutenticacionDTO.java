@@ -26,5 +26,7 @@ public final class AutenticacionDTO {
   public record CambiarClave(
       @NotBlank @Size(max = 72) String previous, @NotBlank @Size(min = 8, max = 72) String next) {}
 
+  public record Codigo(@NotBlank @Size(max = 32) String code) {}
+
   public record Sesion(String id, String name, String email, String phone, String role) {}
 }

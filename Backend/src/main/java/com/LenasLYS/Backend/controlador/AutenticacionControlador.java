@@ -4,7 +4,6 @@ import com.LenasLYS.Backend.dto.AutenticacionDTO.*;
 import com.LenasLYS.Backend.servicio.*;
 import jakarta.servlet.http.*;
 import jakarta.validation.Valid;
-import java.time.Duration;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +11,6 @@ import org.springframework.http.*;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +20,8 @@ import org.springframework.web.bind.annotation.*;
 public class AutenticacionControlador {
   private final UsuarioServicio usuarios;
   private final AuthenticationManager manager;
-  private final SecurityContextRepository contexts;
+  private final AccesoSesionServicio accesos;
+  private final SegundoFactorServicio segundoFactor;
 
   @Value("${app.auth.cookie-secure:false}")
   private boolean secure;
@@ -34,23 +33,6 @@ public class AutenticacionControlador {
   public Map<String, Boolean> google() {
     return Map.of("enabled", googleEnabled);
   }
-
-  @PostMapping("/google/link")
-  public Map<String, Boolean> vincularGoogle(Authentication auth, HttpServletRequest req) {
-    if (!googleEnabled)
-      throw new org.springframework.web.server.ResponseStatusException(
-          HttpStatus.SERVICE_UNAVAILABLE, "Google todavía no está configurado.");
-    var u = usuarios.actual(auth);
-    req.getSession()
-        .setAttribute(
-            "googleLink",
-            new GoogleVinculacion(
-                u.getId(), u.getVersionSesion(), java.time.Instant.now().plusSeconds(300)));
-    return Map.of("ok", true);
-  }
-
-  public record GoogleVinculacion(java.util.UUID usuario, long version, java.time.Instant vence)
-      implements java.io.Serializable {}
 
   @GetMapping("/csrf")
   public Map<String, String> csrf(CsrfToken token) {
@@ -64,35 +46,44 @@ public class AutenticacionControlador {
   }
 
   @PostMapping("/login")
-  public Sesion login(
+  public Object login(
       @Valid @RequestBody Login dto, HttpServletRequest req, HttpServletResponse res) {
     Authentication auth =
         manager.authenticate(
             UsernamePasswordAuthenticationToken.unauthenticated(
                 UsuarioServicio.normalizar(dto.email()), dto.password()));
-    var session = req.getSession();
-    req.changeSessionId();
     var u = usuarios.actual(auth);
-    session.setAttribute("authVersion", u.getVersionSesion());
-    session.setMaxInactiveInterval(Boolean.TRUE.equals(dto.remember()) ? 604800 : 1800);
-    var context = SecurityContextHolder.createEmptyContext();
-    context.setAuthentication(auth);
-    SecurityContextHolder.setContext(context);
-    contexts.saveContext(context, req, res);
-    new org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository()
-        .saveToken(null, req, res);
-    res.addHeader(
-        HttpHeaders.SET_COOKIE,
-        ResponseCookie.from("LYSSESSION", session.getId())
-            .httpOnly(true)
-            .secure(secure || req.isSecure())
-            .sameSite("Lax")
-            .path("/")
-            .maxAge(
-                Boolean.TRUE.equals(dto.remember()) ? Duration.ofDays(7) : Duration.ofSeconds(-1))
-            .build()
-            .toString());
+    if (u.getTotpSecret() != null) {
+      accesos.desafiar(u, Boolean.TRUE.equals(dto.remember()), req, res);
+      return Map.of("twoFactorRequired", true);
+    }
+    accesos.iniciar(u, Boolean.TRUE.equals(dto.remember()), req, res);
     return usuarios.sesion(u);
+  }
+
+  @GetMapping("/2fa/challenge")
+  public Map<String, Boolean> desafio(HttpServletRequest req) {
+    accesos.pendiente(req);
+    return Map.of("pending", true);
+  }
+
+  @PostMapping("/2fa/verify")
+  public Sesion verificarSegundoFactor(
+      @Valid @RequestBody Codigo dto, HttpServletRequest req, HttpServletResponse res) {
+    var session = req.getSession();
+    synchronized (session) {
+      var p = accesos.pendiente(req);
+      int intentos = (int) session.getAttribute("segundoFactorIntentos");
+      if (intentos >= 5) {
+        session.invalidate();
+        throw new org.springframework.web.server.ResponseStatusException(
+            HttpStatus.TOO_MANY_REQUESTS, "Demasiados intentos. Vuelve a iniciar sesión.");
+      }
+      session.setAttribute("segundoFactorIntentos", intentos + 1);
+      var u = segundoFactor.verificar(p.id(), p.version(), dto.code());
+      accesos.iniciar(u, p.recordar(), req, res);
+      return usuarios.sesion(u);
+    }
   }
 
   @GetMapping("/me")

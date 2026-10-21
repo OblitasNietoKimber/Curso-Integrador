@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
     assignableTypes = {
       AutenticacionControlador.class,
       CuentaControlador.class,
+      SeguridadControlador.class,
       RecuperacionControlador.class
     })
 public class ErroresAutenticacion {

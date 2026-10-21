@@ -15,7 +15,7 @@ public class GoogleUsuarioServicio {
   private final UsuarioRepositorio usuarios;
 
   @Transactional
-  public Usuario obtenerOCrear(OidcUser identidad, java.util.UUID vincular, Long version) {
+  public Usuario obtenerOCrear(OidcUser identidad) {
     // Spring ya ha validado firma, emisor, destinatario, nonce y vigencia del ID token.
     String sub = identidad.getSubject();
     String email = identidad.getEmail();
@@ -28,21 +28,10 @@ public class GoogleUsuarioServicio {
         || email.length() > 254) throw error("identity_invalid");
     var existente = usuarios.findByGoogleSub(sub);
     if (existente.isPresent()) {
-      if (vincular != null && !vincular.equals(existente.get().getId()))
-        throw error("identity_mismatch");
       if (!existente.get().isActivo()) throw error("account_disabled");
       return existente.get();
     }
     email = UsuarioServicio.normalizar(email);
-    // Vincular cuentas requiere autenticar primero al propietario de la cuenta local.
-    if (vincular != null) {
-      var local = usuarios.findById(vincular).orElseThrow(() -> error("identity_invalid"));
-      if (!local.isActivo() || !java.util.Objects.equals(version, local.getVersionSesion()))
-        throw error("identity_invalid");
-      if (!local.getEmail().equals(email)) throw error("identity_mismatch");
-      local.setGoogleSub(sub);
-      return usuarios.saveAndFlush(local);
-    }
     if (usuarios.existsByEmail(email)) throw error("account_exists");
     Usuario u = new Usuario();
     u.setGoogleSub(sub);

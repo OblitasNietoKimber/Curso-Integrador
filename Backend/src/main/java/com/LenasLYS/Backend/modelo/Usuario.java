@@ -28,6 +28,15 @@ public class Usuario {
   @Column(name = "google_sub", unique = true, length = 255)
   private String googleSub;
 
+  @Column(name = "totp_secret", length = 255)
+  private String totpSecret;
+
+  @Column(name = "totp_counter")
+  private Long totpCounter;
+
+  @Column(name = "totp_recovery", columnDefinition = "text")
+  private String totpRecovery;
+
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 20)
   private Rol rol = Rol.CLIENTE;
