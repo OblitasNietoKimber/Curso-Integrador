@@ -11,6 +11,8 @@ const enlacesRapidos = [
   { nombre: 'Carrito de compras', ruta: '/carrito' },
 ];
 
+const ANIO_ACTUAL = new Date().getFullYear();
+
 export function PiePagina({ alNavegar }: PropiedadesPiePagina) {
   return (
     <footer className="home-footer" id="pie-pagina">
@@ -89,7 +91,7 @@ export function PiePagina({ alNavegar }: PropiedadesPiePagina) {
 
         <div className="footer-bottom">
           <span>
-            © {new Date().getFullYear()} Leñas y Sabores. Todos los derechos reservados.
+            © {ANIO_ACTUAL} Leñas y Sabores. Todos los derechos reservados.
           </span>
           <span>
             Sabor peruano, en cada brasa.{' '}

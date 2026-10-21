@@ -26,8 +26,6 @@ export function PaginaPromociones() {
   const { agregar, mensajeNotificacion, limpiarMensaje } = usarCarrito();
 
   useEffect(() => {
-    setCargando(true);
-    setError(null);
     let activo = true;
 
     ServicioPromociones.obtenerTodas({

@@ -49,8 +49,6 @@ export function PaginaCatalogo({ alNavegar, consultaInicial = '' }: PropiedadesP
 
   // Cargar Productos desde el backend según filtros
   useEffect(() => {
-    setCargando(true);
-    setError(null);
     let activo = true;
 
     ServicioProductos.obtenerTodos({
@@ -123,6 +121,22 @@ export function PaginaCatalogo({ alNavegar, consultaInicial = '' }: PropiedadesP
         >
           <Icono name="check" />
           <span>{mensajeNotificacion}</span>
+          <button
+            type="button"
+            onClick={() => alNavegar('/carrito')}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              color: '#fff',
+              cursor: 'pointer',
+              marginLeft: '8px',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontWeight: 600,
+            }}
+          >
+            Ver carrito
+          </button>
           <button
             type="button"
             onClick={limpiarMensaje}

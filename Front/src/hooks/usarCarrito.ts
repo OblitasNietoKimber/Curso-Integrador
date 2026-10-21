@@ -59,7 +59,7 @@ function obtenerInstantanea() {
   return memoriaCarrito;
 }
 
-export function usarCarrito() {
+export function useCarrito() {
   const carrito = useSyncExternalStore(suscribir, obtenerInstantanea);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -168,3 +168,5 @@ export function usarCarrito() {
     vaciar,
   };
 }
+
+export const usarCarrito = useCarrito;
