@@ -41,16 +41,21 @@ const initial = (): AccountState => ({
  cards: [], addresses: [], preferredPayment: '', preferences: {}, readNotifications: [],
 });
 let state = initial();
+let personal = false;
 let feedback = { saving: false, error: '' };
 const listeners = new Set<() => void>();
 const notify = () => listeners.forEach(listener => listener());
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
-export async function loadAccount() { state = await apiRequest<AccountState>('/account'); feedback = { saving: false, error: '' }; notify(); }
-export function clearAccount() { state = initial(); feedback = { saving: false, error: '' }; notify(); }
+export async function loadAccount(role = 'cliente') {
+ personal = role !== 'cliente';
+ state = personal ? {...initial(),profile:await apiRequest<AccountProfile>('/account/personal')} : await apiRequest<AccountState>('/account');
+ feedback = { saving: false, error: '' }; notify();
+}
+export function clearAccount() { personal = false; state = initial(); feedback = { saving: false, error: '' }; notify(); }
 export async function updateAccount(patch: Partial<AccountState>): Promise<boolean> {
  if (feedback.saving) return false;
  feedback = { saving: true, error: '' }; notify();
- try { state = await apiRequest<AccountState>('/account', { method: 'PUT', body: JSON.stringify({ ...state, ...patch }) }); feedback = { saving: false, error: '' }; notify(); window.dispatchEvent(new Event('lys-profile-updated')); return true; }
+ try { state = personal ? {...initial(),profile:await apiRequest<AccountProfile>('/account/personal',{method:'PUT',body:JSON.stringify(patch.profile || state.profile)})} : await apiRequest<AccountState>('/account', { method: 'PUT', body: JSON.stringify({ ...state, ...patch }) }); feedback = { saving: false, error: '' }; notify(); window.dispatchEvent(new Event('lys-profile-updated')); return true; }
  catch(error) { feedback = { saving: false, error: error instanceof Error ? error.message : 'No se pudo guardar.' }; notify(); return false; }
 }
 export function useAccount() { return useSyncExternalStore(subscribe, () => state); }
