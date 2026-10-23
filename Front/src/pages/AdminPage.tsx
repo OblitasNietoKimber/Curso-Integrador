@@ -4,6 +4,8 @@ import { AdminDashboard } from "../features/admin/AdminDashboard";
 import { adminSections, adminPath } from "../features/admin/adminSections";
 import { logout, useSession } from "../services/session";
 import "../styles/account.css";
+import "../styles/admin.css";
+
 
 export function AdminPage({ route, onNavigate }: { route: string; onNavigate: (path: string) => void }) {
   const { user } = useSession();
