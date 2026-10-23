@@ -26,6 +26,7 @@ export function BarraNavegacion({
   busqueda,
 }: PropiedadesBarraNavegacion) {
   const { user } = useSession();
+  const sectionsVisibles = user && ['caja','administrador'].includes(user.role.toLowerCase()) ? [...sections, {name:'Caja',path:'/caja'}] : sections;
   const { profile } = useAccount();
   const { cantidadTotal } = usarCarrito();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -64,7 +65,7 @@ export function BarraNavegacion({
       </a>
 
       <nav className="desktop-nav" aria-label="Navegación principal">
-        {sections.map(section => (
+        {sectionsVisibles.map(section => (
           <button
             key={section.name}
             type="button"
@@ -159,7 +160,7 @@ export function BarraNavegacion({
         aria-label="Navegación móvil"
         hidden={!menuOpen}
       >
-        {sections.map(section => (
+        {sectionsVisibles.map(section => (
           <button
             type="button"
             key={section.name}

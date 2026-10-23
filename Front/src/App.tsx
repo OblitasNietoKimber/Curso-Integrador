@@ -7,6 +7,7 @@ import { PaginaPromociones } from './pages/PaginaPromociones';
 import { PaginaCarrito } from './pages/PaginaCarrito';
 import { PiePagina } from './components/PiePagina';
 import { Header } from './components/Header';
+import Caja from './components/caja/Caja';
 import { AuthLayout } from './components/AuthLayout';
 import { NoticeDialog, type Notice } from './components/NoticeDialog';
 import { AccountPage } from './pages/AccountPage';
@@ -27,10 +28,11 @@ export default function App() {
   const [route, setRoute] = useState(location.pathname.replace(/\/$/, '') || '/');
   const [notice, setNotice] = useState<Notice | null>(null);
   useEffect(() => { const pop = () => setRoute(location.pathname.replace(/\/$/, '') || '/'); window.addEventListener('popstate', pop); return () => window.removeEventListener('popstate', pop); }, []);
-  useEffect(() => { void refreshSession(); const success = () => { history.pushState(null, '', '/mi-cuenta'); setRoute('/mi-cuenta'); window.scrollTo(0, 0); }; const expired = () => { if (location.pathname.startsWith('/mi-cuenta')) { history.replaceState(null, '', '/iniciar-sesion'); setRoute('/iniciar-sesion'); } }; window.addEventListener('lys-login-success', success); window.addEventListener('lys-session-expired', expired); return () => { window.removeEventListener('lys-login-success', success); window.removeEventListener('lys-session-expired', expired); }; }, []);
+  useEffect(() => { void refreshSession(); const success = () => { const destino = new URLSearchParams(location.search).get('destino') === 'caja' ? '/caja' : '/mi-cuenta'; history.pushState(null, '', destino); setRoute(destino); window.scrollTo(0, 0); }; const expired = () => { if (location.pathname.startsWith('/mi-cuenta')) { history.replaceState(null, '', '/iniciar-sesion'); setRoute('/iniciar-sesion'); } }; window.addEventListener('lys-login-success', success); window.addEventListener('lys-session-expired', expired); return () => { window.removeEventListener('lys-login-success', success); window.removeEventListener('lys-session-expired', expired); }; }, []);
 
   function navigate(path: string) { history.pushState(null, '', path); setRoute(path.split('?')[0]); window.scrollTo(0, 0); }
-  useEffect(() => { document.title = `${route.startsWith('/mi-cuenta') ? 'Mi cuenta' : route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : route === '/' ? 'Inicio' : route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);
+  useEffect(() => { document.title = `${route.startsWith('/caja') ? 'Caja' : route.startsWith('/mi-cuenta') ? 'Mi cuenta' : route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : route === '/' ? 'Inicio' : route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);
+  if(route === '/caja' || route.startsWith('/caja/')) return <Caja onNavigate={navigate}/>;
   const publicPage = ['/', '/carta', '/promociones', '/carrito'].includes(route);
   const active = route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Inicio';
   return <>
