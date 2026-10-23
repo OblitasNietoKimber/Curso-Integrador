@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { AdminNavigation } from "../features/admin/AdminNavigation";
 import { AdminDashboard } from "../features/admin/AdminDashboard";
+import { AdminProductos } from "../features/admin/AdminProductos";
 import { adminSections, adminPath } from "../features/admin/adminSections";
 import { logout, useSession } from "../services/session";
 import "../styles/account.css";
 import "../styles/admin.css";
-
 
 export function AdminPage({ route, onNavigate }: { route: string; onNavigate: (path: string) => void }) {
   const { user } = useSession();
@@ -18,12 +18,12 @@ export function AdminPage({ route, onNavigate }: { route: string; onNavigate: (p
       .catch((error) => setLogoutError(error.message));
   };
 
-  if (user?.role === "cliente")
+  if (user?.role !== "administrador")
     return (
       <main id="contenido" className="base-page">
         <h1>Acceso restringido</h1>
-        <p>El panel de administración es solo para el personal del negocio.</p>
-        <button className="info-button" onClick={() => onNavigate("/mi-cuenta")}>Ir a mi cuenta</button>
+        <p>El panel de administración es solo para administradores.</p>
+        <button className="info-button" onClick={() => onNavigate("/")}>Ir al inicio</button>
       </main>
     );
 
@@ -47,6 +47,8 @@ export function AdminPage({ route, onNavigate }: { route: string; onNavigate: (p
             {logoutError && <p role="alert">{logoutError}</p>}
             {section.slug === "" ? (
               <AdminDashboard onNavigate={onNavigate} />
+            ) : section.slug === "productos" ? (
+              <AdminProductos />
             ) : (
               <section className="info-card">
                 <h2>{section.label}</h2>
