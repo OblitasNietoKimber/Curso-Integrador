@@ -1,0 +1,10 @@
+CREATE TABLE perfiles_personal (
+ usuario_id UUID PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
+ telefono VARCHAR(25) NOT NULL DEFAULT '',
+ foto TEXT,
+ tipo_documento VARCHAR(20) NOT NULL DEFAULT 'DNI',
+ documento VARCHAR(20) NOT NULL DEFAULT '',
+ fecha_nacimiento VARCHAR(10) NOT NULL DEFAULT '',
+ genero VARCHAR(40) NOT NULL DEFAULT '',
+ notas VARCHAR(500) NOT NULL DEFAULT ''
+);
