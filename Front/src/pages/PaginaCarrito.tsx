@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Icon } from '../components/Icon';
 import { soles } from '../utils/formato';
 import { usarCarrito } from '../hooks/usarCarrito';
+import { useSession } from '../services/session';
+import { useAccount } from '../features/account/accountStore';
 import type { ItemCarrito } from '../tipos';
 
 interface PropiedadesPaginaCarrito {
@@ -80,19 +82,22 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
     agregar,
   } = usarCarrito();
 
+  const { user } = useSession();
+  const { profile, addresses } = useAccount();
+
   const [step, setStep] = useState(0);
   const [confirmedReceipt, setConfirmedReceipt] = useState<ConfirmedReceipt | null>(null);
 
   // Datos de entrega
   const [delivery, setDelivery] = useState<DeliveryDraft>({
     mode: 'delivery',
-    address: 'Av. Universitaria 1450',
+    address: '',
     district: 'Los Olivos',
-    reference: 'Frente al parque, casa blanca de 2 pisos',
+    reference: '',
     instructions: '',
-    name: 'Alexander Huamaní',
-    phone: '987654321',
-    email: 'cliente@lenasysabores.pe',
+    name: '',
+    phone: '',
+    email: '',
     store: 'Local Principal - Av. Túpac Amaru 3420, Comas',
   });
 
@@ -100,23 +105,63 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
   const [method, setMethod] = useState<PaymentMethod>('card');
   const [cardNumber, setCardNumber] = useState('4557 8821 3490 1205');
   const [expiry, setExpiry] = useState('11/28');
-  const [walletPhone, setWalletPhone] = useState('987654321');
+  const [walletPhone, setWalletPhone] = useState('');
   const [approvalCode, setApprovalCode] = useState('');
   const [cashAmount, setCashAmount] = useState('');
   const [exact, setExact] = useState(false);
   const [errorPago, setErrorPago] = useState('');
+
+  // Proteger pasos de compra: no se puede avanzar sin estar autenticado
+  useEffect(() => {
+    if (step > 0 && !user) {
+      localStorage.setItem('lys-return-after-login', '/carrito');
+      alNavegar('/iniciar-sesion');
+    }
+  }, [step, user, alNavegar]);
+
+  // Sincronizar datos de contacto y entrega con la cuenta del usuario logeado
+  useEffect(() => {
+    if (user) {
+      setDelivery(prev => {
+        const primaryAddress = addresses.find(a => a.primary) || addresses[0];
+        return {
+          ...prev,
+          name: prev.name || profile.name || user.name || '',
+          phone: prev.phone || profile.phone || user.phone || '',
+          email: prev.email || profile.email || user.email || '',
+          address: prev.address || primaryAddress?.street || '',
+          district: prev.district && prev.district !== 'Los Olivos' ? prev.district : (primaryAddress?.district || 'Los Olivos'),
+          reference: prev.reference || primaryAddress?.reference || '',
+        };
+      });
+      if (!walletPhone) {
+        const userPhone = profile.phone || user.phone || '';
+        if (userPhone.length === 9) setWalletPhone(userPhone);
+      }
+    }
+  }, [user, profile, addresses, walletPhone]);
 
   const shippingCost = delivery.mode === 'delivery' ? 5.0 : 0.0;
   const totalFinal = Math.round((total + shippingCost) * 100) / 100;
 
   function handleDeliverySubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user) {
+      localStorage.setItem('lys-return-after-login', '/carrito');
+      alNavegar('/iniciar-sesion');
+      return;
+    }
     setStep(2);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
   function handlePaymentSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user) {
+      localStorage.setItem('lys-return-after-login', '/carrito');
+      alNavegar('/iniciar-sesion');
+      return;
+    }
     if (method === 'cash') {
       const parsedCash = exact ? totalFinal : Number(cashAmount);
       if (!exact && (!Number.isFinite(parsedCash) || parsedCash < totalFinal)) {
@@ -142,6 +187,11 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
   }
 
   function handleConfirmOrder() {
+    if (!user) {
+      localStorage.setItem('lys-return-after-login', '/carrito');
+      alNavegar('/iniciar-sesion');
+      return;
+    }
     const code = generarCodigoPedido();
     const receipt: ConfirmedReceipt = {
       code,
@@ -387,10 +437,32 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
           <div className="checkout-main-column">
             {/* Paso 0: Productos del carrito */}
             {step === 0 && (
-              <section
-                className="checkout-panel cart-products"
-                aria-labelledby="cart-products-title"
-              >
+              <>
+                {!user && items.length > 0 && (
+                  <div className="checkout-auth-banner" role="alert">
+                    <Icon name="user" />
+                    <div>
+                      <strong>Inicia sesión para realizar tu pedido</strong>
+                      <p>
+                        Debes tener una cuenta activa para ingresar tus datos de entrega y confirmar la compra.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="checkout-auth-banner-button"
+                      onClick={() => {
+                        localStorage.setItem('lys-return-after-login', '/carrito');
+                        alNavegar('/iniciar-sesion');
+                      }}
+                    >
+                      Iniciar sesión
+                    </button>
+                  </div>
+                )}
+                <section
+                  className="checkout-panel cart-products"
+                  aria-labelledby="cart-products-title"
+                >
                 <div className="checkout-panel-heading">
                   <h2 id="cart-products-title">
                     <Icon name="cart" />
@@ -476,6 +548,7 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
                   </div>
                 )}
               </section>
+            </>
             )}
 
             {/* Paso 1: Dirección y entrega */}
@@ -533,6 +606,30 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
                   {delivery.mode === 'delivery' ? (
                     <>
                       <h2 className="checkout-field-heading">Datos de entrega</h2>
+                      {addresses && addresses.length > 0 && (
+                        <div className="checkout-saved-addresses">
+                          <span>Tus direcciones registradas:</span>
+                          <div className="checkout-address-chips">
+                            {addresses.map(addr => (
+                              <button
+                                key={addr.id}
+                                type="button"
+                                className={`checkout-chip ${delivery.address === addr.street ? 'selected' : ''}`}
+                                onClick={() => {
+                                  setDelivery(prev => ({
+                                    ...prev,
+                                    address: addr.street,
+                                    district: addr.district,
+                                    reference: addr.reference,
+                                  }));
+                                }}
+                              >
+                                <strong>{addr.label}:</strong> {addr.street} ({addr.district})
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       <div className="checkout-field-grid">
                         <label>
                           Dirección de entrega <span>*</span>
@@ -1161,11 +1258,16 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
                 type="button"
                 disabled={!items.length}
                 onClick={() => {
+                  if (!user) {
+                    localStorage.setItem('lys-return-after-login', '/carrito');
+                    alNavegar('/iniciar-sesion');
+                    return;
+                  }
                   setStep(1);
                   window.scrollTo({ top: 0, behavior: 'instant' });
                 }}
               >
-                Continuar compra <Icon name="arrow" />
+                {user ? 'Continuar compra' : 'Iniciar sesión para comprar'} <Icon name="arrow" />
               </button>
             )}
 
