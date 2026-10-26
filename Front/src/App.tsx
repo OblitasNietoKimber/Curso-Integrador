@@ -28,12 +28,39 @@ export default function App() {
   const [route, setRoute] = useState(location.pathname.replace(/\/$/, '') || '/');
   const [notice, setNotice] = useState<Notice | null>(null);
   useEffect(() => { const pop = () => setRoute(location.pathname.replace(/\/$/, '') || '/'); window.addEventListener('popstate', pop); return () => window.removeEventListener('popstate', pop); }, []);
-  useEffect(() => { void refreshSession(); const success = () => {
-    const user = getSessionUser();
-    const canUseCaja = user && ['caja', 'administrador'].includes(user.role);
-    const destino = new URLSearchParams(location.search).get('destino') === 'caja' && canUseCaja
-      ? '/caja'
-      : user && user.role !== 'cliente' ? '/' : '/mi-cuenta'; history.pushState(null, '', destino); setRoute(destino); window.scrollTo(0, 0); }; const expired = () => { if (location.pathname.startsWith('/mi-cuenta')) { history.replaceState(null, '', '/iniciar-sesion'); setRoute('/iniciar-sesion'); } }; window.addEventListener('lys-login-success', success); window.addEventListener('lys-session-expired', expired); return () => { window.removeEventListener('lys-login-success', success); window.removeEventListener('lys-session-expired', expired); }; }, []);
+  useEffect(() => {
+    void refreshSession();
+    const success = () => {
+      const returnPath = localStorage.getItem('lys-return-after-login');
+      if (returnPath) {
+        localStorage.removeItem('lys-return-after-login');
+        history.pushState(null, '', returnPath);
+        setRoute(returnPath);
+        window.scrollTo(0, 0);
+        return;
+      }
+      const user = getSessionUser();
+      const canUseCaja = user && ['caja', 'administrador'].includes(user.role);
+      const destino = new URLSearchParams(location.search).get('destino') === 'caja' && canUseCaja
+        ? '/caja'
+        : user && user.role !== 'cliente' ? '/' : '/mi-cuenta';
+      history.pushState(null, '', destino);
+      setRoute(destino);
+      window.scrollTo(0, 0);
+    };
+    const expired = () => {
+      if (location.pathname.startsWith('/mi-cuenta') || location.pathname.startsWith('/caja')) {
+        history.replaceState(null, '', '/iniciar-sesion');
+        setRoute('/iniciar-sesion');
+      }
+    };
+    window.addEventListener('lys-login-success', success);
+    window.addEventListener('lys-session-expired', expired);
+    return () => {
+      window.removeEventListener('lys-login-success', success);
+      window.removeEventListener('lys-session-expired', expired);
+    };
+  }, []);
 
   function navigate(path: string) { history.pushState(null, '', path); setRoute(path.split('?')[0]); window.scrollTo(0, 0); }
   useEffect(() => { document.title = `${route.startsWith('/caja') ? 'Caja' : route.startsWith('/mi-cuenta') ? 'Mi cuenta' : route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : route === '/' ? 'Inicio' : route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);

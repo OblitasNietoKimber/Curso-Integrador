@@ -6,6 +6,7 @@ import com.LenasLYS.Backend.dto.CarritoDTO;
 import com.LenasLYS.Backend.servicio.CarritoServicio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,12 +25,25 @@ public class CarritoControlador {
 
     private final CarritoServicio carritoServicio;
 
+    private String resolverCarritoId(String headerCarritoId, String paramCarritoId, Authentication auth) {
+        String clienteCarritoId = headerCarritoId != null && !headerCarritoId.isBlank() ? headerCarritoId : paramCarritoId;
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            String usuarioCarritoId = "usr_" + auth.getName();
+            if (clienteCarritoId != null && !clienteCarritoId.isBlank() && !clienteCarritoId.equals(usuarioCarritoId)) {
+                return carritoServicio.migrarOFusionar(clienteCarritoId, usuarioCarritoId);
+            }
+            return usuarioCarritoId;
+        }
+        return clienteCarritoId;
+    }
+
     @GetMapping
     public ResponseEntity<CarritoDTO> obtenerCarrito(
             @RequestHeader(value = "X-Carrito-Id", required = false) String headerCarritoId,
-            @RequestParam(value = "carritoId", required = false) String paramCarritoId
+            @RequestParam(value = "carritoId", required = false) String paramCarritoId,
+            Authentication auth
     ) {
-        String carritoId = headerCarritoId != null && !headerCarritoId.isBlank() ? headerCarritoId : paramCarritoId;
+        String carritoId = resolverCarritoId(headerCarritoId, paramCarritoId, auth);
         return ResponseEntity.ok(carritoServicio.obtenerCarrito(carritoId));
     }
 
@@ -37,9 +51,10 @@ public class CarritoControlador {
     public ResponseEntity<CarritoDTO> agregarItem(
             @RequestHeader(value = "X-Carrito-Id", required = false) String headerCarritoId,
             @RequestParam(value = "carritoId", required = false) String paramCarritoId,
-            @RequestBody AgregarItemDTO peticion
+            @RequestBody AgregarItemDTO peticion,
+            Authentication auth
     ) {
-        String carritoId = headerCarritoId != null && !headerCarritoId.isBlank() ? headerCarritoId : paramCarritoId;
+        String carritoId = resolverCarritoId(headerCarritoId, paramCarritoId, auth);
         CarritoDTO carrito = carritoServicio.agregarItem(carritoId, peticion.getProductoId(), peticion.getCantidad());
         return ResponseEntity.ok(carrito);
     }
@@ -49,9 +64,10 @@ public class CarritoControlador {
             @RequestHeader(value = "X-Carrito-Id", required = false) String headerCarritoId,
             @RequestParam(value = "carritoId", required = false) String paramCarritoId,
             @PathVariable String productoId,
-            @RequestBody ActualizarCantidadDTO peticion
+            @RequestBody ActualizarCantidadDTO peticion,
+            Authentication auth
     ) {
-        String carritoId = headerCarritoId != null && !headerCarritoId.isBlank() ? headerCarritoId : paramCarritoId;
+        String carritoId = resolverCarritoId(headerCarritoId, paramCarritoId, auth);
         CarritoDTO carrito = carritoServicio.actualizarCantidad(carritoId, productoId, peticion.getCantidad());
         return ResponseEntity.ok(carrito);
     }
@@ -60,9 +76,10 @@ public class CarritoControlador {
     public ResponseEntity<CarritoDTO> eliminarItem(
             @RequestHeader(value = "X-Carrito-Id", required = false) String headerCarritoId,
             @RequestParam(value = "carritoId", required = false) String paramCarritoId,
-            @PathVariable String productoId
+            @PathVariable String productoId,
+            Authentication auth
     ) {
-        String carritoId = headerCarritoId != null && !headerCarritoId.isBlank() ? headerCarritoId : paramCarritoId;
+        String carritoId = resolverCarritoId(headerCarritoId, paramCarritoId, auth);
         CarritoDTO carrito = carritoServicio.eliminarItem(carritoId, productoId);
         return ResponseEntity.ok(carrito);
     }
@@ -70,9 +87,10 @@ public class CarritoControlador {
     @DeleteMapping
     public ResponseEntity<CarritoDTO> vaciarCarrito(
             @RequestHeader(value = "X-Carrito-Id", required = false) String headerCarritoId,
-            @RequestParam(value = "carritoId", required = false) String paramCarritoId
+            @RequestParam(value = "carritoId", required = false) String paramCarritoId,
+            Authentication auth
     ) {
-        String carritoId = headerCarritoId != null && !headerCarritoId.isBlank() ? headerCarritoId : paramCarritoId;
+        String carritoId = resolverCarritoId(headerCarritoId, paramCarritoId, auth);
         CarritoDTO carrito = carritoServicio.vaciarCarrito(carritoId);
         return ResponseEntity.ok(carrito);
     }
