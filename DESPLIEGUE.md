@@ -66,6 +66,11 @@ cookies HttpOnly, Secure y SameSite=Lax, junto con CSRF.
 
 ## Funciones opcionales
 
+El módulo de Administración guarda imágenes en `uploads/catalogo`. El contenedor
+permite escribir allí, pero el disco de Render es efímero: para conservar imágenes
+entre despliegues se necesita almacenamiento persistente o un servicio de archivos.
+Si se configura un disco, definir IMAGENES_DIRECTORIO con su ruta montada.
+
 - Google: en Render definir GOOGLE_LOGIN_ENABLED=true, GOOGLE_CLIENT_ID y
   GOOGLE_CLIENT_SECRET. En Google registrar exactamente
   `https://TU-PROYECTO.vercel.app/login/oauth2/code/google`. La configuración del
