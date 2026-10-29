@@ -38,6 +38,7 @@ class CocinaIntegracionTest {
   @Autowired RolRepositorio roles;
   @Autowired TurnoRepositorio turnos;
   @Autowired CocinaServicio cocina;
+  @Autowired PagoRepositorio pagos;
 
   org.springframework.test.web.servlet.request.RequestPostProcessor identidad(String rol) {
     Usuario u = new Usuario(); u.setNombre("Operador"); u.setEmail(java.util.UUID.randomUUID() + "@test.com");
@@ -132,6 +133,67 @@ class CocinaIntegracionTest {
     assertEquals(antes + 1, pedidos.count());
     mvc.perform(get("/api/cocina").with(identidad("COCINA")))
         .andExpect(status().isOk()).andExpect(jsonPath("$[0].notas").value("Sin ají"));
+  }
+
+  @Test void digitalesQuedanPagadosSinSaltarCocinaNiDuplicarStock() throws Exception {
+    Usuario cliente = new Usuario(); cliente.setNombre("Cliente Digital"); cliente.setEmail("digital@test.com");
+    cliente.setRolAsignado(roles.findByNombre("CLIENTE").orElseThrow()); usuarios.saveAndFlush(cliente);
+    var producto = productos.findByActivoTrue().get(0);
+    producto.setStock(20); producto.setPrecio(new BigDecimal("19.90")); productos.saveAndFlush(producto);
+    long anteriores = pagos.count();
+    int stock = 20;
+    String ultimoId = null;
+    for (String metodo : List.of("Yape", "Plin", "Tarjeta")) {
+      String body = json.writeValueAsString(Map.of("solicitud", "digital-" + metodo, "cliente", "Cliente Digital",
+          "canal", "Delivery", "direccion", "Av. Lima 123", "metodo", metodo, "referencia", "123456",
+          "items", List.of(Map.of("productoId", producto.getId(), "cantidad", 2))));
+      String id = null;
+      for (int intento = 0; intento < 2; intento++) {
+        var result = mvc.perform(post("/api/pedidos").with(identidad(cliente)).with(csrf())
+            .contentType("application/json").content(body))
+            .andExpect(status().isOk()).andExpect(jsonPath("$.pagado").value(true))
+            .andExpect(jsonPath("$.metodoPago").value(metodo)).andExpect(jsonPath("$.estado").value("Recibido"))
+            .andReturn();
+        String actual = json.readTree(result.getResponse().getContentAsString()).path("id").asText();
+        if (id != null) assertEquals(id, actual);
+        id = actual;
+      }
+      stock -= 2;
+      assertEquals(stock, productos.findById(producto.getId()).orElseThrow().getStock());
+      String pedidoId = id;
+      Pago pago = pagos.findAll().stream().filter(p -> p.pedidoId.equals(pedidoId)).findFirst().orElseThrow();
+      assertEquals(metodo, pago.metodo);
+      assertNull(pago.turnoId);
+      assertEquals(0, new BigDecimal("44.80").compareTo(pago.monto));
+      assertEquals(0, BigDecimal.ZERO.compareTo(pago.vuelto));
+      cocina.cambiar(id, "Recibido", "En preparación", false);
+      cocina.cambiar(id, "En preparación", "Listo", false);
+      assertTrue(pedidos.findById(id).orElseThrow().pagado);
+      ultimoId = id;
+    }
+    assertEquals(anteriores + 3, pagos.count());
+    Turno turno = new Turno(); turno.cajero = "Caja"; turno.apertura = java.time.Instant.now();
+    turno.inicial = BigDecimal.ZERO; turnos.saveAndFlush(turno);
+    mvc.perform(post("/api/caja/cobros").with(identidad("CAJA")).with(csrf()).contentType("application/json")
+        .content(json.writeValueAsString(Map.of("pedidoId", ultimoId, "metodo", "Efectivo", "recibido", 50))))
+        .andExpect(status().isConflict()).andExpect(jsonPath("$.message").value("Este pedido ya fue cobrado."));
+    mvc.perform(get("/api/caja").with(identidad("CAJA"))).andExpect(status().isOk());
+  }
+
+  @Test void validaMetodoYReferenciaAntesDeRegistrarPago() throws Exception {
+    Usuario cliente = new Usuario(); cliente.setNombre("Cliente"); cliente.setEmail("referencia@test.com");
+    cliente.setRolAsignado(roles.findByNombre("CLIENTE").orElseThrow()); usuarios.saveAndFlush(cliente);
+    var producto = productos.findByActivoTrue().get(0);
+    long antes = pedidos.count(), pagosAntes = pagos.count();
+    for (String metodo : List.of("Yape", "Plin", "Desconocido")) {
+      mvc.perform(post("/api/pedidos").with(identidad(cliente)).with(csrf()).contentType("application/json")
+          .content(json.writeValueAsString(Map.of("solicitud", "invalido-" + metodo, "cliente", "Cliente",
+              "canal", "Recojo", "metodo", metodo, "referencia", "abc",
+              "items", List.of(Map.of("productoId", producto.getId(), "cantidad", 1))))))
+          .andExpect(status().isConflict());
+    }
+    assertEquals(antes, pedidos.count());
+    assertEquals(pagosAntes, pagos.count());
   }
 
   @Test void flujoClienteCocinaCajaYSeguimientoPrivado() throws Exception {
