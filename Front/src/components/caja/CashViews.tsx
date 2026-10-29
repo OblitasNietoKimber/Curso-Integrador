@@ -198,7 +198,7 @@ export function CashViews({
                 <td>#{p.orderId}</td>
                 <td>{o?.table ? String(o.table).padStart(2, "0") : "—"}</td>
                 <td>
-                  {data.shifts.find((s) => s.id === p.shiftId)?.user || "—"}
+                  {p.shiftId === 'web' ? 'Pago web' : data.shifts.find((s) => s.id === p.shiftId)?.user || "—"}
                 </td>
                 <td>
                   <span className="ops-method-label">
