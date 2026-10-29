@@ -39,6 +39,7 @@ class CocinaIntegracionTest {
   @Autowired TurnoRepositorio turnos;
   @Autowired CocinaServicio cocina;
   @Autowired PagoRepositorio pagos;
+  @Autowired ClienteRepositorio clientes;
 
   org.springframework.test.web.servlet.request.RequestPostProcessor identidad(String rol) {
     Usuario u = new Usuario(); u.setNombre("Operador"); u.setEmail(java.util.UUID.randomUUID() + "@test.com");
@@ -114,6 +115,8 @@ class CocinaIntegracionTest {
   @Test void checkoutUsaPreciosRealesYReintentosNoDuplican() throws Exception {
     Usuario u = new Usuario(); u.setNombre("Cliente"); u.setEmail("cocina@test.com");
     u.setRolAsignado(roles.findByNombre("CLIENTE").orElseThrow()); usuarios.saveAndFlush(u);
+    var perfil = new com.LenasLYS.Backend.modelo.Cliente();
+    perfil.setUsuario(u); perfil.setNombre("Cliente"); clientes.saveAndFlush(perfil);
     var producto = productos.findByActivoTrue().get(0);
     producto.setStock(99); producto.setPrecio(new BigDecimal("19.90")); productos.saveAndFlush(producto);
     String body = json.writeValueAsString(Map.of("solicitud", "intento-1", "cliente", "Cliente",
@@ -125,12 +128,14 @@ class CocinaIntegracionTest {
       var result = mvc.perform(post("/api/pedidos").with(identidad(u))
           .with(csrf()).contentType("application/json").content(body))
           .andExpect(status().isOk()).andExpect(jsonPath("$.total").value(44.8))
+          .andExpect(jsonPath("$.clienteId").value(perfil.getId().toString()))
           .andExpect(jsonPath("$.pagado").value(false)).andReturn();
       String actual = json.readTree(result.getResponse().getContentAsString()).path("id").asText();
       if (id != null) assertEquals(id, actual);
       id = actual;
     }
     assertEquals(antes + 1, pedidos.count());
+    assertEquals(id, pedidos.findByPerfilClienteId(perfil.getId()).get(0).id);
     mvc.perform(get("/api/cocina").with(identidad("COCINA")))
         .andExpect(status().isOk()).andExpect(jsonPath("$[0].notas").value("Sin ají"));
   }

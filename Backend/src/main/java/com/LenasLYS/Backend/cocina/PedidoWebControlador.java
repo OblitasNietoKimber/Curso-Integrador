@@ -18,7 +18,9 @@ import org.springframework.web.server.ResponseStatusException;
 public class PedidoWebControlador {
   private final EntityManager em;
   private final com.LenasLYS.Backend.caja.CajaServicio caja;
-  public PedidoWebControlador(EntityManager em, com.LenasLYS.Backend.caja.CajaServicio caja) { this.em = em; this.caja = caja; }
+  private final com.LenasLYS.Backend.repositorio.ClienteRepositorio clientes;
+  public PedidoWebControlador(EntityManager em, com.LenasLYS.Backend.caja.CajaServicio caja,
+      com.LenasLYS.Backend.repositorio.ClienteRepositorio clientes) { this.em = em; this.caja = caja; this.clientes = clientes; }
   @GetMapping("/{id}")
   @Transactional(readOnly = true)
   public PedidoCaja consultar(@PathVariable String id, Authentication auth) {
@@ -52,6 +54,7 @@ public class PedidoWebControlador {
     PedidoCaja p = new PedidoCaja();
     p.id = "W-" + UUID.randomUUID().toString().substring(0, 12).toUpperCase();
     p.solicitud = clave;
+    clientes.findByUsuarioId(UUID.fromString(auth.getName())).ifPresent(p::setPerfilCliente);
     p.metodoPago = metodo;
     p.cliente = r.cliente().trim(); p.canal = r.canal(); p.mesa = "";
     p.direccion = r.direccion(); p.telefono = r.telefono(); p.notas = r.notas();
