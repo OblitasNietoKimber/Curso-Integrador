@@ -8,6 +8,7 @@ import { PaginaCarrito } from './pages/PaginaCarrito';
 import { PiePagina } from './components/PiePagina';
 import { Header } from './components/Header';
 import Caja from './components/caja/Caja';
+import Cocina from './components/cocina/Cocina';
 import { AuthLayout } from './components/AuthLayout';
 import { NoticeDialog, type Notice } from './components/NoticeDialog';
 import { AccountPage } from './pages/AccountPage';
@@ -41,7 +42,8 @@ export default function App() {
       }
       const user = getSessionUser();
       const canUseCaja = user && ['caja', 'administrador'].includes(user.role);
-      const destino = new URLSearchParams(location.search).get('destino') === 'caja' && canUseCaja
+      const requested = new URLSearchParams(location.search).get('destino');
+      const destino = user && ['cocina', 'administrador'].includes(user.role) && (requested === 'cocina' || user.role === 'cocina') ? '/cocina' : requested === 'caja' && canUseCaja
         ? '/caja'
         : user && user.role !== 'cliente' ? '/' : '/mi-cuenta';
       history.pushState(null, '', destino);
@@ -49,7 +51,7 @@ export default function App() {
       window.scrollTo(0, 0);
     };
     const expired = () => {
-      if (location.pathname.startsWith('/mi-cuenta') || location.pathname.startsWith('/caja')) {
+      if (location.pathname.startsWith('/mi-cuenta') || location.pathname.startsWith('/caja') || location.pathname.startsWith('/cocina')) {
         history.replaceState(null, '', '/iniciar-sesion');
         setRoute('/iniciar-sesion');
       }
@@ -63,8 +65,9 @@ export default function App() {
   }, []);
 
   function navigate(path: string) { history.pushState(null, '', path); setRoute(path.split('?')[0]); window.scrollTo(0, 0); }
-  useEffect(() => { document.title = `${route.startsWith('/caja') ? 'Caja' : route.startsWith('/mi-cuenta') ? 'Mi cuenta' : route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : route === '/' ? 'Inicio' : route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);
+  useEffect(() => { document.title = `${route.startsWith('/cocina') ? 'Cocina' : route.startsWith('/caja') ? 'Caja' : route.startsWith('/mi-cuenta') ? 'Mi cuenta' : route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : route === '/' ? 'Inicio' : route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);
   if(route === '/caja' || route.startsWith('/caja/')) return <Caja onNavigate={navigate}/>;
+  if(route === '/cocina' || route.startsWith('/cocina/')) return <Cocina onNavigate={navigate} route={route}/>;
   const publicPage = ['/', '/carta', '/promociones', '/carrito'].includes(route);
   const active = route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Inicio';
   return <>

@@ -26,7 +26,10 @@ export function BarraNavegacion({
   busqueda,
 }: PropiedadesBarraNavegacion) {
   const { user } = useSession();
-  const sectionsVisibles = user && ['caja','administrador'].includes(user.role.toLowerCase()) ? [...sections, {name:'Caja',path:'/caja'}] : sections;
+  const sectionsVisibles = [...sections,
+    ...(user && ['caja','administrador'].includes(user.role.toLowerCase()) ? [{name:'Caja',path:'/caja'}] : []),
+    ...(user && ['cocina','administrador'].includes(user.role.toLowerCase()) ? [{name:'Cocina',path:'/cocina'}] : []),
+  ];
   const { profile } = useAccount();
   const { cantidadTotal } = usarCarrito();
   const [menuOpen, setMenuOpen] = useState(false);
