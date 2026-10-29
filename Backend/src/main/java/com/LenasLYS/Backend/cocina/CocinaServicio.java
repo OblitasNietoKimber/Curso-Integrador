@@ -25,7 +25,6 @@ public class CocinaServicio {
   public PedidoCaja cambiar(String id, String esperado, String destino, boolean administrador) {
     PedidoCaja p = em.find(PedidoCaja.class, id, LockModeType.PESSIMISTIC_WRITE);
     if (p == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido inexistente.");
-    if (p.pagado) throw new ResponseStatusException(HttpStatus.CONFLICT, "El pedido ya fue cobrado y está en el historial.");
     String actual = p.estado == null ? "Recibido" : p.estado;
     if (!actual.equals(esperado))
       throw new ResponseStatusException(HttpStatus.CONFLICT, "El pedido cambió. Actualiza Cocina.");
