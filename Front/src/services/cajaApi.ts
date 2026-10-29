@@ -4,6 +4,7 @@ export type Linea = {
   productoId: string;
   cantidad: number;
   precio: number;
+  imagen?: string;
 };
 export type Pedido = {
   id: string;
@@ -12,6 +13,14 @@ export type Pedido = {
   mesa: string;
   pagado: boolean;
   creado?: string;
+  estado?: import('./operationsStore').Status;
+  aceptado?: string;
+  listo?: string;
+  entregado?: string;
+  notas?: string;
+  direccion?: string;
+  telefono?: string;
+  envio?: number;
   items: Linea[];
   total: number;
 };
