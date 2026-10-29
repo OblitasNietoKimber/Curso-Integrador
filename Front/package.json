@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "lint": "oxlint",
+    "test": "node --experimental-strip-types --test tests/destinoSesion.test.mjs",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit"
   },

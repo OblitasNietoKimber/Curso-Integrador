@@ -1,0 +1,12 @@
+.git
+.idea
+.vscode
+target
+src/test
+.env
+.env.*
+**/*.env
+**/*.log
+src/main/resources/application.properties
+src/main/resources/application-*-local.properties
+README.md

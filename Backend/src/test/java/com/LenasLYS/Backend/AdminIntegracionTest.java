@@ -19,6 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 class AdminIntegracionTest {
  @Autowired MockMvc mvc;@Autowired ObjectMapper json;@Autowired UsuarioRepositorio usuarios;@Autowired RolRepositorio roles;@Autowired PasswordEncoder encoder;
  @Autowired ClienteRepositorio clientes;
+ @Test void rechazaPasswordQueExcedeLimiteBcryptConUnicode() throws Exception {
+   var sesion = login(admin.getEmail());
+   var body = java.util.Map.of("nombre", "Operador", "email", "unicode@test.com", "rol", "COCINA", "activo", true, "password", "ñ".repeat(40));
+   mvc.perform(post("/api/admin/usuarios").session(sesion).with(csrf()).contentType("application/json")
+       .content(json.writeValueAsString(body))).andExpect(status().isBadRequest());
+   org.junit.jupiter.api.Assertions.assertFalse(usuarios.existsByEmail("unicode@test.com"));
+ }
  Usuario admin;
  @BeforeEach void preparar(){admin=crear("admin.panel@test.com","ADMINISTRADOR");}
  Usuario crear(String email,String rol){var u=new Usuario();u.setNombre("Personal Prueba");u.setEmail(email);u.setPasswordHash(encoder.encode("Prueba2026!"));u.setRolAsignado(roles.findByNombre(rol).orElseThrow());return usuarios.saveAndFlush(u);}

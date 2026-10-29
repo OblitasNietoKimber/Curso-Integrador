@@ -1,0 +1,83 @@
+.cocina-workspace .ops-workspace-toolbar { gap: 16px; }
+.cocina-workspace .ops-workspace-toolbar > span { margin-left: auto; font-size: .85rem; }
+.ops-root.cocina-workspace[data-page] .ops-workspace-toolbar > button { flex-shrink: 0; white-space: nowrap; width: auto; min-width: 40px; }
+.cocina-menu-toggle { display: none; }
+.cocina-workspace [inert] { opacity: .65; }
+.ops-root.cocina-workspace[data-page] { background: #f6f7fb; }
+.ops-root.cocina-workspace[data-page] .ops-page-heading h1 {
+  font-family: 'DM Sans', Arial, sans-serif; font-size: clamp(26px, 3vw, 36px);
+  font-style: normal; letter-spacing: -.8px; line-height: 1.2;
+}
+.ops-root.cocina-workspace[data-page] .ops-page-heading p { font-size: 14px; color: #66738a; }
+.cocina-flow { display: flex; flex-wrap: wrap; gap: 10px 24px; list-style: none; margin: 0 0 24px; padding: 12px 16px; border: 1px solid #e5e9f0; border-radius: 12px; background: white; }
+.cocina-flow li { display: flex; align-items: center; gap: 8px; color: #526179; font-size: 12px; font-weight: 600; }
+.cocina-flow li + li::before { content: '›'; margin-right: 12px; color: #a4adbc; }
+.cocina-flow svg { width: 18px; height: 18px; color: #df1731; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-columns {
+  grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: start;
+}
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-column {
+  min-width: 0; padding: 12px; border: 1px solid #e3e8f0; border-radius: 16px; background: #eef1f6;
+}
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-column-heading {
+  display: flex; align-items: center; gap: 8px; padding: 12px; margin: 0 0 12px;
+  border-radius: 10px; background: #fff0f1; color: #c91c35;
+}
+.ops-root.cocina-workspace[data-page] .kitchen-column[data-stage="En preparación"] .kitchen-column-heading { background: #fff4df; color: #96600a; }
+.ops-root.cocina-workspace[data-page] .kitchen-column[data-stage="Listo"] .kitchen-column-heading { background: #e3f5ec; color: #137848; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-column-heading h2 { font-size: 14px; line-height: 1.4; margin: 0; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-column-heading svg { width: 20px; height: 20px; flex-shrink: 0; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-ticket {
+  min-width: 0; padding: 16px; margin: 0 0 12px; border: 1px solid #dfe5ee;
+  border-radius: 12px; box-shadow: 0 3px 9px #182b4910; background: white;
+}
+.ops-root.cocina-workspace[data-page] .kitchen-ticket[data-urgent="true"] { border-left: 3px solid #e8a12c; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-ticket-main {
+  display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 12px; align-items: start;
+}
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-ticket-main > img,
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-product-placeholder {
+  width: 56px; height: 56px; margin: 0; object-fit: contain; border-radius: 10px; background: #fff6ed;
+}
+.kitchen-product-placeholder { display: grid; place-items: center; color: #a97438; }
+.kitchen-product-placeholder svg { width: 28px; height: 28px; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-ticket-main > div { min-width: 0; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-ticket-main header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 0 0 6px;
+}
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-ticket-id {
+  padding: 0; min-height: 0; max-width: 100%; text-align: left; white-space: normal;
+  overflow-wrap: anywhere; font-size: 13px; font-weight: 750; line-height: 1.4; color: #1b2c46;
+}
+.ops-root.cocina-workspace[data-page] .kitchen-board time { font-size: 11px; color: #7b879b; white-space: nowrap; margin-left: auto; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-channel { display: flex; flex-wrap: wrap; gap: 5px 10px; font-size: 12px; color: #637188; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-channel span { font-size: 11px; color: #8490a2; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-ticket-main ul { padding: 0; list-style: none; margin: 10px 0 0; font-size: 13px; line-height: 1.6; color: #34455e; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-note { font-size: 12px; padding: 8px; background: #fff8e7; border-radius: 6px; overflow-wrap: anywhere; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-ticket-actions {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid #edf0f5;
+}
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-elapsed { display: flex; align-items: center; gap: 6px; font-size: 14px; font-variant-numeric: tabular-nums; color: #9a660d; line-height: 1.35; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-elapsed small { display: block; font-size: 10px; font-weight: 500; color: #7b879b; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-elapsed.is-ready { color: #148356; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .ops-kitchen-elapsed svg { width: 18px; height: 18px; }
+.ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-ticket-actions button {
+  margin-left: auto; min-height: 36px; height: auto; padding: 8px 12px; border-radius: 8px; font-size: 12px; line-height: 1.35; white-space: normal;
+}
+@media (max-width: 1150px) and (min-width: 761px) {
+  .ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ops-root.cocina-workspace[data-page] .kitchen-column[data-stage="Listo"] { grid-column: 1 / -1; }
+}
+@media (max-width: 760px) {
+  .ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-columns { grid-template-columns: minmax(0, 1fr); }
+  .ops-root.cocina-workspace[data-page] .kitchen-board .kitchen-column[data-mobile-active="false"] { display: none; }
+  .ops-root.cocina-workspace[data-page] .kitchen-board .ops-stage-tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 12px; }
+  .ops-root.cocina-workspace[data-page] .kitchen-board .ops-stage-tabs button { flex: 0 0 auto; font-size: 11px; padding: 9px; }
+  .cocina-flow { gap: 8px; padding: 10px; }
+  .cocina-flow li { font-size: 10px; gap: 4px; }
+  .cocina-flow li + li::before { margin-right: 2px; }
+}
+@media (max-width: 900px) {
+  .cocina-menu-toggle { display: inline-flex; }
+  .cocina-workspace .ops-sidebar.cocina-menu-open { display: flex; position: fixed; z-index: 100; inset: 65px auto 0 0; width: 260px; transform: none; background: white; box-shadow: 4px 0 20px #0003; }
+}

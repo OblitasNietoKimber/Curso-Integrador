@@ -114,7 +114,7 @@ class GoogleOAuthIntegracionTest {
         .andExpect(jsonPath("$.enabled").value(true))
         .andExpect(jsonPath("$.clientSecret").doesNotExist());
     var resultado = callback("valid");
-    assertEquals("http://localhost:5173/mi-cuenta", resultado.getResponse().getRedirectedUrl());
+    assertEquals("http://localhost:5173/", resultado.getResponse().getRedirectedUrl());
     var s = (MockHttpSession) resultado.getRequest().getSession(false);
     mvc.perform(get("/api/auth/me").session(s))
         .andExpect(status().isOk())

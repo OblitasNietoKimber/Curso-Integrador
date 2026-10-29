@@ -1,0 +1,26 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://lys-kitchen-api.onrender.com/api/:path*" },
+    { "source": "/oauth2/:path*", "destination": "https://lys-kitchen-api.onrender.com/oauth2/:path*" },
+    { "source": "/login/oauth2/:path*", "destination": "https://lys-kitchen-api.onrender.com/login/oauth2/:path*" },
+    { "source": "/((?!api(?:/|$)|oauth2(?:/|$)|login/oauth2(?:/|$)|assets(?:/|$)|images(?:/|$)|fonts(?:/|$)|favicon\\.svg$).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [{ "key": "Cache-Control", "value": "private, no-store, max-age=0" }]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}

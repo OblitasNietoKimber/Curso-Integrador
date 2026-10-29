@@ -22,6 +22,7 @@ import {
   refundPayment,
   type Order,
   type Voucher,
+  listoParaCobrar,
 } from "../../services/operationsStore";
 import {
   Panel,
@@ -104,9 +105,8 @@ export function CashViews({
   const [detail, setDetail] = useState<Order | null>(null);
   const shift = data.shifts.find((s) => !s.closed);
   const payments = data.payments.filter((p) => !p.refunded);
-  const pending = data.orders.filter(
-    (o) => !o.paid && !o.draft && o.status !== "Cancelado",
-  );
+  const pending = data.orders.filter(listoParaCobrar);
+  const inKitchen = data.orders.filter(o => !o.paid && ['Recibido', 'En preparación'].includes(o.status)).length;
   const order = pending.find((o) => o.id === selected) || pending[0];
   const paidOrder =
     data.orders.find((o) => o.id === selected && o.paid) ||
@@ -198,7 +198,7 @@ export function CashViews({
                 <td>#{p.orderId}</td>
                 <td>{o?.table ? String(o.table).padStart(2, "0") : "—"}</td>
                 <td>
-                  {data.shifts.find((s) => s.id === p.shiftId)?.user || "—"}
+                  {p.shiftId === 'web' ? 'Pago web' : data.shifts.find((s) => s.id === p.shiftId)?.user || "—"}
                 </td>
                 <td>
                   <span className="ops-method-label">
@@ -305,7 +305,7 @@ export function CashViews({
               />
             </div>
             {pending.length === 0 ? (
-              <Empty>No hay pedidos pendientes de cobro.</Empty>
+              <Empty>{inKitchen ? `${inKitchen} pedido${inKitchen === 1 ? '' : 's'} en Cocina. Aparecerán aquí cuando estén listos.` : 'No hay pedidos listos para cobrar.'}</Empty>
             ) : (
               <div className="ops-pending-card-list">
                 {pending

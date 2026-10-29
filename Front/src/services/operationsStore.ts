@@ -60,6 +60,8 @@ export type Order = {
   history: { status: string; date: string }[];
   draft?: boolean;
 };
+export const listoParaCobrar = (order: Order) =>
+  !order.paid && !order.draft && ['Listo', 'En camino', 'Entregado'].includes(order.status);
 export type TableState = {
   id: number;
   zone: string;
@@ -270,11 +272,11 @@ export async function loadCaja() {
     settings: { ...settings, ...data.configuracion },
     orders: data.pedidos.map((p) => ({
       id: p.id,
-      customerId: "",
+      customerId: p.clienteId || "",
       customer: p.cliente,
       phone: "",
       email: "",
-      address: "",
+      address: p.direccion || "",
       channel: p.canal as Channel,
       table: p.mesa ? Number(p.mesa) || null : null,
       items: p.items.map((i) => ({
@@ -294,14 +296,17 @@ export async function loadCaja() {
           price: i.precio,
         },
       })),
-      notes: "",
-      status: "Recibido",
+      notes: p.notas || "",
+      status: p.estado || "Recibido",
+      accepted: p.aceptado || undefined,
+      ready: p.listo || undefined,
+      delivered: p.entregado || undefined,
       created: p.creado || "",
       discount: 0,
-      shipping: 0,
+      shipping: p.envio || 0,
       method:
         data.pagos.find((g) => g.pedidoId === p.id && !g.reembolsado)?.metodo ||
-        "",
+        p.metodoPago || "",
       paid: p.pagado,
       history: [],
     })),
@@ -314,7 +319,7 @@ export async function loadCaja() {
       change: p.vuelto,
       date: p.fecha,
       refunded: p.reembolsado,
-      shiftId: String(p.turnoId),
+      shiftId: p.turnoId == null ? 'web' : String(p.turnoId),
     })),
     vouchers: data.comprobantes.map((c) => ({
       id: c.numero,

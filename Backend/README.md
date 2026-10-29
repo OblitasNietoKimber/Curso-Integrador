@@ -11,6 +11,16 @@ CREATE DATABASE lenas_sabores;
 ```
 
 2. Dentro de `Backend/`, copiar `.env.example` como `.env` y configurar usuario y contraseña de PostgreSQL. Spring importa este archivo al iniciar desde esa carpeta. No subir `.env` a Git. Se pueden usar variables de entorno en su lugar.
+El archivo `.env` se importa como configuración de Spring; sus valores no se
+copian físicamente a `application.properties`. Las variables reales del sistema
+tienen prioridad sobre el archivo. No escribir contraseñas en el archivo de
+configuración versionado.
+
+La importación admite iniciar desde la raíz del repositorio o desde `Backend/`.
+En VS Code, seleccionar **Backend - cargar Backend/.env** en Ejecutar y depurar:
+esa configuración fija el directorio de trabajo en `Backend/`. Después de cambiar
+`.env`, detener por completo el backend y volver a iniciarlo.
+
 3. Ejecutar desde `Backend/`:
 
 ```bash

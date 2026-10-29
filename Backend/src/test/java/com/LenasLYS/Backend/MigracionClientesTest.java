@@ -54,7 +54,7 @@ class MigracionClientesTest {
         insert.setLong(12, 0);
         insert.executeUpdate();
       }
-      assertEquals(2, Flyway.configure().dataSource(source).load().migrate().migrationsExecuted);
+      assertEquals(2, Flyway.configure().dataSource(source).target("5").load().migrate().migrationsExecuted);
       try (Connection db = source.getConnection();
           Statement sql = db.createStatement()) {
         try (ResultSet rows =
@@ -102,7 +102,7 @@ class MigracionClientesTest {
         }
         assertThrows(SQLException.class, () -> sql.execute("UPDATE usuarios SET id_rol=99"));
       }
-      assertEquals(0, Flyway.configure().dataSource(source).load().migrate().migrationsExecuted);
+      assertEquals(0, Flyway.configure().dataSource(source).target("5").load().migrate().migrationsExecuted);
     }
   }
 }

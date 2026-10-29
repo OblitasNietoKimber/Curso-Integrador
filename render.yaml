@@ -1,0 +1,54 @@
+# yaml-language-server: $schema=https://render.com/schema/render.yaml.json
+services:
+  - type: web
+    name: lys-kitchen-api
+    runtime: docker
+    branch: feature/kitchen
+    rootDir: Backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: virginia
+    numInstances: 1
+    healthCheckPath: /api/categorias
+    autoDeployTrigger: "off"
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: DB_HOST
+        fromDatabase:
+          name: lys-kitchen-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: lys-kitchen-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: lys-kitchen-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: lys-kitchen-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: lys-kitchen-db
+          property: password
+      - key: FRONTEND_URL
+        sync: false
+      - key: TOTP_ENCRYPTION_KEY
+        generateValue: true
+      - key: GOOGLE_LOGIN_ENABLED
+        value: "false"
+      - key: PASSWORD_RESET_ENABLED
+        value: "false"
+
+databases:
+  - name: lys-kitchen-db
+    databaseName: lenas_sabores
+    user: lys
+    plan: free
+    region: virginia
+    postgresMajorVersion: "17"
+    ipAllowList: []

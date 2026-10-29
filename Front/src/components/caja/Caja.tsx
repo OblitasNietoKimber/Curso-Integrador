@@ -5,7 +5,7 @@ import { CashRegisterPanel } from "./CashRegisterPanel";
 import { OperationsDialog } from "./OperationsDialog";
 import { OperationsPageActions } from "../../services/operationsPageContext";
 import { Icon, type IconName } from "./OperationsVisuals";
-import { loadCaja, useOperations } from "../../services/operationsStore";
+import { loadCaja, useOperations, listoParaCobrar } from "../../services/operationsStore";
 import { NuevaVenta } from "./NuevaVenta";
 import "../../services/referenceStyles";
 const menuItems: [string, string, IconName][] = [
@@ -152,9 +152,7 @@ function CajaWorkspace({ onNavigate }: { onNavigate: (path: string) => void }) {
       }
     })();
   }
-  const pending = state.orders.filter(
-    (o) => !o.paid && !o.draft && o.status !== "Cancelado",
-  );
+  const pending = state.orders.filter(listoParaCobrar);
   async function reload() {
     setLoadError("");
     setLoading(true);
@@ -403,7 +401,7 @@ function CajaWorkspace({ onNavigate }: { onNavigate: (path: string) => void }) {
           ) : titles[section] ? (
             <>
               <div inert={busy || undefined}>
-                {section==="nueva-venta"?<NuevaVenta busy={busy} notify={notify} onComplete={()=>navigate("/caja/cobros")}/>:section==="turno"?<CashRegisterPanel notify={notify} navigate={navigate} onModeChange={setCashMode}/>:<CashViews
+                {section==="nueva-venta"?<NuevaVenta busy={busy} notify={notify} onComplete={()=>{navigate("/caja/cobros");setMessage("Pedido enviado a Cocina. Aparecerá para cobrar cuando esté listo.");}}/>:section==="turno"?<CashRegisterPanel notify={notify} navigate={navigate} onModeChange={setCashMode}/>:<CashViews
                   key={section}
                   section={section}
                   notify={notify}

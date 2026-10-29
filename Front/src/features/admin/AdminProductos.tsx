@@ -217,13 +217,15 @@ export function AdminProductos() {
                 <td>S/ {Number(p.precio).toFixed(2)}</td>
                 <td>{p.stock}</td>
                 <td>{p.activo ? "Activo" : "Inactivo"}</td>
-                <td className="admin-acciones">
+                <td>
+                  <div className="admin-acciones">
                   <button className="info-button" onClick={() => editar(p)}>
                     Editar
                   </button>
                   <button className="info-button" onClick={() => void alternar(p)}>
                     {p.activo ? "Desactivar" : "Activar"}
                   </button>
+                  </div>
                 </td>
               </tr>))}
             {visibles.length === 0 && (<tr>

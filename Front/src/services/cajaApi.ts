@@ -4,6 +4,7 @@ export type Linea = {
   productoId: string;
   cantidad: number;
   precio: number;
+  imagen?: string;
 };
 export type Pedido = {
   id: string;
@@ -12,7 +13,16 @@ export type Pedido = {
   canal: string;
   mesa: string;
   pagado: boolean;
+  metodoPago?: string;
   creado?: string;
+  estado?: import('./operationsStore').Status;
+  aceptado?: string;
+  listo?: string;
+  entregado?: string;
+  notas?: string;
+  direccion?: string;
+  telefono?: string;
+  envio?: number;
   items: Linea[];
   total: number;
 };
@@ -30,7 +40,7 @@ export type Turno = {
 export type Pago = {
   id: number;
   pedidoId: string;
-  turnoId: number;
+  turnoId: number | null;
   metodo: string;
   monto: number;
   recibido: number;

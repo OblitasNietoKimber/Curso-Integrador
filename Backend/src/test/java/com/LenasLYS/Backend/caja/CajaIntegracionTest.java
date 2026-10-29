@@ -39,6 +39,7 @@ class CajaIntegracionTest {
   @Autowired PagoRepositorio pagos;
   @Autowired TurnoRepositorio turnos;
   @Autowired ComprobanteRepositorio comprobantes;
+  @Autowired com.LenasLYS.Backend.cocina.CocinaServicio cocina;
   Producto producto;
 
   @BeforeEach
@@ -88,7 +89,7 @@ class CajaIntegracionTest {
   }
 
   String venta(MockHttpSession s, int cantidad, int esperado) throws Exception {
-    return enviar(
+    String resultado = enviar(
         s,
         "/pedidos",
         Map.of(
@@ -101,6 +102,12 @@ class CajaIntegracionTest {
             "items",
             java.util.List.of(Map.of("productoId", producto.getId(), "cantidad", cantidad))),
         esperado);
+    if (esperado == 200) {
+      String id = json.readTree(resultado).path("id").asText();
+      cocina.cambiar(id, "Recibido", "En preparación", false);
+      cocina.cambiar(id, "En preparación", "Listo", false);
+    }
+    return resultado;
   }
 
   @Test
