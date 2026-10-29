@@ -1,0 +1,3 @@
+import { AdminEditor, type Field } from './AdminEditor';
+const fields: Field[] = [{ key: 'nombre', label: 'Nombre', required: true, max: 120 }, { key: 'email', label: 'Correo', type: 'email' }, { key: 'telefono', label: 'Teléfono', max: 25 }, { key: 'tipoDocumento', label: 'Tipo de documento', options: ['DNI', 'CE', 'Pasaporte'] }, { key: 'documento', label: 'Documento', max: 20 }, { key: 'notas', label: 'Notas', max: 500 }];
+export function AdminClientes() { return <AdminEditor title="Clientes" path="/admin/clientes" fields={fields} defaults={{ id: '' }} canCreate={false} readOnlyKeys={['email']}/>; }
