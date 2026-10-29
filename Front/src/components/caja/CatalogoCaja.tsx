@@ -267,7 +267,7 @@ export function CatalogoCaja({ turnoAbierto, ocupado, onGuardar }: Props) {
             className="principal ancho"
             disabled={ocupado || !turnoAbierto || !lineas.length}
           >
-            {ocupado ? "Guardando…" : "Guardar cuenta para cobrar →"}
+            {ocupado ? "Enviando…" : "Enviar pedido a Cocina →"}
           </button>
         </form>
       </section>
