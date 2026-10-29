@@ -11,7 +11,7 @@ async function token() {
 }
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers);
-  if (options.body && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+  if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
   if (!['GET','HEAD','OPTIONS'].includes((options.method || 'GET').toUpperCase())) { const value = await token(); headers.set(value.headerName, value.token); }
   let response: Response;
   try { response = await fetch(base + path, { ...options, credentials: 'include', headers }); }
