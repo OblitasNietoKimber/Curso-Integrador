@@ -306,7 +306,7 @@ export async function loadCaja() {
       shipping: p.envio || 0,
       method:
         data.pagos.find((g) => g.pedidoId === p.id && !g.reembolsado)?.metodo ||
-        "",
+        p.metodoPago || "",
       paid: p.pagado,
       history: [],
     })),
@@ -319,7 +319,7 @@ export async function loadCaja() {
       change: p.vuelto,
       date: p.fecha,
       refunded: p.reembolsado,
-      shiftId: String(p.turnoId),
+      shiftId: p.turnoId == null ? 'web' : String(p.turnoId),
     })),
     vouchers: data.comprobantes.map((c) => ({
       id: c.numero,

@@ -12,6 +12,7 @@ export type Pedido = {
   canal: string;
   mesa: string;
   pagado: boolean;
+  metodoPago?: string;
   creado?: string;
   estado?: import('./operationsStore').Status;
   aceptado?: string;
@@ -38,7 +39,7 @@ export type Turno = {
 export type Pago = {
   id: number;
   pedidoId: string;
-  turnoId: number;
+  turnoId: number | null;
   metodo: string;
   monto: number;
   recibido: number;

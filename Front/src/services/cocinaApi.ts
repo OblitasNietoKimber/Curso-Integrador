@@ -11,7 +11,7 @@ export function adaptarPedido(p: PedidoCocina): Order {
     address: p.direccion || '', channel: p.canal as Order['channel'], table: Number(p.mesa) || null,
     notes: p.notas || '', status: p.estado || 'Recibido', created: p.creado || '',
     accepted: p.aceptado || undefined, ready: p.listo || undefined, delivered: p.entregado || undefined,
-    paid: p.pagado, discount: 0, shipping: p.envio || 0, method: '', history: [
+    paid: p.pagado, discount: 0, shipping: p.envio || 0, method: p.metodoPago || '', history: [
       { status: 'Recibido', date: p.creado || '' },
       ...(p.aceptado ? [{ status: 'En preparación', date: p.aceptado }] : []),
       ...(p.listo ? [{ status: 'Listo', date: p.listo }] : []),
