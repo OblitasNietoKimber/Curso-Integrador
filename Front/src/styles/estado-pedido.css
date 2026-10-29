@@ -1,7 +1,9 @@
 .pedido-progress { margin: 20px 0; padding: 20px; background: white; border: 1px solid #e3e8f0; border-radius: 14px; text-align: left; }
 .pedido-progress > div { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; color: #25364e; }
 .pedido-progress [role="status"] { font-size: 13px; color: #66738a; }
-.pedido-progress ol { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; padding: 0; margin: 20px 0 0; gap: 8px; }
+.pedido-progress ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; padding: 0; margin: 20px 0 0; gap: 8px; }
+.pedido-payment { margin: 12px 0 0; padding: 10px 12px; border-radius: 8px; color: #875d1b; background: #fff7e8; font-size: 13px; }
+.pedido-payment[data-paid="true"] { color: #137848; background: #e3f5ec; }
 .pedido-progress li { display: flex; align-items: center; gap: 8px; color: #8a96a8; font-size: 12px; border-top: 3px solid #e7ebf0; padding-top: 12px; }
 .pedido-progress li > span { display: grid; place-items: center; flex: 0 0 24px; height: 24px; border-radius: 50%; background: #edf0f5; }
 .pedido-progress li[data-complete="true"] { border-color: #db1e37; color: #942438; }
