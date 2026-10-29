@@ -224,8 +224,10 @@ Reportes y Configuración. Inventario queda fuera del panel.
 
 No se copian datos de ejemplo del prototipo al navegador. Si no hay registros,
 los indicadores muestran cero y los listados muestran su estado vacío.
-Los pedidos actuales de Caja no tienen una relación por ID con `clientes`;
-por ello no se atribuye historial de compras por coincidencia de nombres.
+El historial de Clientes consulta pedidos vinculados por ID. En el detalle de
+Pedidos puede asociarse explícitamente un perfil de cliente; los pedidos anteriores
+quedan sin vincular hasta hacerlo. No se atribuyen compras por coincidencia de nombres.
+También se pueden registrar clientes presenciales sin crear cuentas de acceso.
 
 ### Imágenes
 
@@ -249,6 +251,6 @@ npm run lint
 
 La prueba de navegador realizada durante la implementación usa respuestas de API
 simuladas para verificar las ocho rutas, cinco formularios, carga de imagen, reintento tras error, estados vacíos,
-menú móvil y cálculos sin reembolsos. No sustituye la suite contra Spring Boot. En el entorno de edición
+historial por ID, menú móvil y cálculos sin reembolsos. No sustituye la suite contra Spring Boot. En el entorno de edición
 Maven no pudo descargar `spring-boot-starter-parent:4.1.1` por la restricción de red;
 se deja pendiente ejecutar esta suite en un entorno con Maven Central accesible.

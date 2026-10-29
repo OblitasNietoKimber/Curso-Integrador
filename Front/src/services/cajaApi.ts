@@ -8,6 +8,7 @@ export type Linea = {
 export type Pedido = {
   id: string;
   cliente: string;
+  clienteId?: string | null;
   canal: string;
   mesa: string;
   pagado: boolean;
