@@ -9,7 +9,8 @@ RUN mvn -B -ntp -Dmaven.test.skip=true package
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
-RUN groupadd --system lys && useradd --system --gid lys --home-dir /app lys
+RUN groupadd --system lys && useradd --system --gid lys --home-dir /app lys \
+    && install -d -o lys -g lys /app/uploads/catalogo
 COPY --from=build --chown=lys:lys /build/target/Backend-0.0.1-SNAPSHOT.jar ./app.jar
 USER lys
 ENV PORT=10000
