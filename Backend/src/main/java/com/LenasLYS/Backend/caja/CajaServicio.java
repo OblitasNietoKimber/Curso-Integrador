@@ -138,7 +138,7 @@ public class CajaServicio {
 
   private BigDecimal esperado(Turno t) {
     return pagos.findAll().stream()
-        .filter(p -> p.turnoId.equals(t.id) && !p.reembolsado && p.metodo.equals("Efectivo"))
+        .filter(p -> Objects.equals(p.turnoId, t.id) && !p.reembolsado && p.metodo.equals("Efectivo"))
         .map(p -> p.monto)
         .reduce(t.inicial, BigDecimal::add);
   }
@@ -201,6 +201,15 @@ public class CajaServicio {
     check(p.recibido.compareTo(total) >= 0, "El efectivo recibido es insuficiente.");
 
     p.referencia = texto(r.referencia(), 100);
+    descontarStock(o);
+    p.vuelto = p.recibido.subtract(total);
+    p.fecha = Instant.now();
+    pagos.save(p);
+    o.pagado = true;
+    o.metodoPago = r.metodo();
+  }
+
+  private void descontarStock(PedidoCaja o) {
     if (pagos.findAll().stream().noneMatch(anterior -> anterior.pedidoId.equals(o.id))) {
       for (PedidoCaja.Linea linea : o.items) {
         var producto =
@@ -214,6 +223,7 @@ public class CajaServicio {
               "Promoción no disponible: " + linea.producto);
           continue;
         }
+        em.refresh(producto, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
         check(
             producto != null
                 && Boolean.TRUE.equals(producto.getActivo())
@@ -223,12 +233,26 @@ public class CajaServicio {
         producto.setStock(producto.getStock() - linea.cantidad);
       }
     }
-    p.vuelto = p.recibido.subtract(total);
-    p.fecha = Instant.now();
-    pagos.save(p);
-    o.pagado = true;
   }
 
+  public void registrarPagoWeb(PedidoCaja pedido, String metodo, String referencia) {
+    check(List.of("Yape", "Plin", "Tarjeta").contains(metodo), "Método digital inválido.");
+    check(!pedido.pagado, "El pedido ya tiene un pago registrado.");
+    descontarStock(pedido);
+    Pago pago = new Pago();
+    pago.pedidoId = pedido.id;
+    // Los pagos web no pertenecen a un turno de efectivo presencial.
+    pago.turnoId = null;
+    pago.metodo = metodo;
+    pago.referencia = referencia == null || referencia.isBlank() ? "WEB-" + pedido.id : referencia;
+    pago.monto = dinero(pedido.getTotal());
+    pago.recibido = pago.monto;
+    pago.vuelto = BigDecimal.ZERO;
+    pago.fecha = Instant.now();
+    pagos.save(pago);
+    pedido.pagado = true;
+    pedido.metodoPago = metodo;
+  }
   public void reembolsar(Long id, String motivo) {
     lock();
     Turno t = abierto();
@@ -238,7 +262,7 @@ public class CajaServicio {
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pago inexistente."));
     check(
-        !p.reembolsado && p.turnoId.equals(t.id),
+        !p.reembolsado && Objects.equals(p.turnoId, t.id),
         "Solo puedes reembolsar pagos del turno abierto.");
     String m = texto(motivo, 500);
     check(!m.isBlank(), "Indica el motivo del reembolso.");

@@ -17,7 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/pedidos")
 public class PedidoWebControlador {
   private final EntityManager em;
-  public PedidoWebControlador(EntityManager em) { this.em = em; }
+  private final com.LenasLYS.Backend.caja.CajaServicio caja;
+  public PedidoWebControlador(EntityManager em, com.LenasLYS.Backend.caja.CajaServicio caja) { this.em = em; this.caja = caja; }
   @GetMapping("/{id}")
   @Transactional(readOnly = true)
   public PedidoCaja consultar(@PathVariable String id, Authentication auth) {
@@ -30,7 +31,8 @@ public class PedidoWebControlador {
   public record Nuevo(@NotBlank @Size(max=36) String solicitud,
       @NotBlank @Size(max=150) String cliente, @NotBlank String canal,
       @Size(max=500) String direccion, @Size(max=50) String telefono,
-      @Size(max=1000) String notas, @NotEmpty @Size(max=100) List<@NotNull @Valid Item> items) {}
+      @Size(max=1000) String notas, @NotEmpty @Size(max=100) List<@NotNull @Valid Item> items,
+      @Size(max=20) String metodo, @Size(max=100) String referencia) {}
 
   @PostMapping
   @Transactional
@@ -41,11 +43,16 @@ public class PedidoWebControlador {
     var anteriores = em.createQuery("select p from PedidoCaja p where p.solicitud = :clave", PedidoCaja.class)
         .setParameter("clave", clave).getResultList();
     if (!anteriores.isEmpty()) return anteriores.get(0);
+    String metodo = r.metodo() == null ? "Efectivo" : r.metodo();
+    if (!List.of("Efectivo", "Yape", "Plin", "Tarjeta").contains(metodo)) fallo("Método de pago inválido.");
+    if (List.of("Yape", "Plin").contains(metodo) && (r.referencia() == null || !r.referencia().matches("[0-9]{6}")))
+      fallo("Ingresa un código de operación de 6 dígitos.");
     if (!List.of("Delivery", "Recojo").contains(r.canal())) fallo("Canal inválido.");
     if (r.canal().equals("Delivery") && (r.direccion() == null || r.direccion().isBlank())) fallo("Indica la dirección.");
     PedidoCaja p = new PedidoCaja();
     p.id = "W-" + UUID.randomUUID().toString().substring(0, 12).toUpperCase();
     p.solicitud = clave;
+    p.metodoPago = metodo;
     p.cliente = r.cliente().trim(); p.canal = r.canal(); p.mesa = "";
     p.direccion = r.direccion(); p.telefono = r.telefono(); p.notas = r.notas();
     p.envio = r.canal().equals("Delivery") ? new BigDecimal("5.00") : BigDecimal.ZERO;
@@ -69,7 +76,9 @@ public class PedidoWebControlador {
       }
       linea.productoId = i.productoId(); p.items.add(linea);
     }
-    em.persist(p); em.flush(); return p;
+    em.persist(p);
+    if (!metodo.equals("Efectivo")) caja.registrarPagoWeb(p, metodo, r.referencia());
+    em.flush(); return p;
   }
   private void fallo(String mensaje) { throw new ResponseStatusException(HttpStatus.CONFLICT, mensaje); }
 }
