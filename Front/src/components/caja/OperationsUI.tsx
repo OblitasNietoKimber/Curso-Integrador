@@ -402,7 +402,7 @@ export function LineChart({
             </text>
           </g>
         ))}
-        <polygon points={`75,180 ${points} 575,180`} fill="#ff000011" />
+        <polygon points={`75,180 ${points} ${values.length > 1 ? 575 : 75},180`} fill="#ff000011" />
         <polyline
           points={points}
           fill="none"
@@ -440,8 +440,12 @@ export function LineChart({
 }
 export function Donut({
   values,
+  formatValue = money,
+  totalLabel = "Total vendido",
 }: {
   values: { label: string; value: number }[];
+  formatValue?: (value: number) => string;
+  totalLabel?: string;
 }) {
   const total = values.reduce((sum, v) => sum + v.value, 0);
   const colors = ["#bd1425", "#26394c", "#647584", "#8b672b", "#a5afb9"];
@@ -465,15 +469,15 @@ export function Donut({
         }}
       >
         <div>
-          <strong>{money(total)}</strong>
-          <small>Total vendido</small>
+          <strong>{formatValue(total)}</strong>
+          <small>{totalLabel}</small>
         </div>
       </div>
       <div>
         {values.map((v, i) => (
           <p key={v.label}>
             <span style={{ color: colors[i % colors.length] }}>●</span>{" "}
-            {v.label} <strong>{money(v.value)}</strong>
+            {v.label} <strong>{formatValue(v.value)}</strong>
           </p>
         ))}
       </div>
