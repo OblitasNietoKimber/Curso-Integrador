@@ -1,5 +1,5 @@
 /* Dashboard anchors: supplied 1672 px desktop and 941 px mobile artwork. */
-.ops-root.ops-workspace.ops-reference[data-page="administrador/"] {
+.ops-root.admin-workspace.ops-workspace.ops-reference[data-page="administrador/"] {
   .reference-dashboard {
     --dashboard-border: #e4e9f1;
     --dashboard-secondary: #607394;
