@@ -29,6 +29,7 @@ export function BarraNavegacion({
   const sectionsVisibles = [...sections,
     ...(user && ['caja','administrador'].includes(user.role.toLowerCase()) ? [{name:'Caja',path:'/caja'}] : []),
     ...(user && ['cocina','administrador'].includes(user.role.toLowerCase()) ? [{name:'Cocina',path:'/cocina'}] : []),
+    ...(user?.role.toLowerCase() === 'administrador' ? [{name:'Admin',path:'/admin'}] : []),
   ];
   const { profile } = useAccount();
   const { cantidadTotal } = usarCarrito();
