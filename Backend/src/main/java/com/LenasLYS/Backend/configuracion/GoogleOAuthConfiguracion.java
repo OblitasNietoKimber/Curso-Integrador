@@ -90,7 +90,7 @@ public class GoogleOAuthConfiguracion {
           res.sendRedirect(frontend.replaceAll("/$", "") + "/iniciar-sesion?two_factor=1");
         } else {
           accesos.iniciar(u, false, req, res);
-          res.sendRedirect(frontend.replaceAll("/$", "") + "/mi-cuenta");
+          res.sendRedirect(frontend.replaceAll("/$", "") + "/");
         }
       } catch (OAuth2AuthenticationException ex) {
         String code = ex.getError().getErrorCode();
