@@ -115,6 +115,7 @@ export function KitchenIncoming({
               <div className="ops-incoming-reference">
                 <strong>#{order.id}</strong>
                 <KitchenChannel order={order} />
+                <span className="kitchen-payment" data-paid={order.paid}>{order.paid ? `Pagado${order.method ? ' · ' + order.method : ''}` : 'Pago pendiente'}</span>
                 <small>
                   <Icon name="clock" />
                   En espera {kitchenElapsed((now - Date.parse(order.created)) / 1000)}

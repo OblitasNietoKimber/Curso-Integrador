@@ -210,6 +210,7 @@ export function KitchenBoard({
                           ? `Mesa ${String(order.table).padStart(2, "0")}`
                           : order.channel}
                         <span>{count} {count === 1 ? 'plato' : 'platos'}</span>
+                        <span className="kitchen-payment" data-paid={order.paid}>{order.paid ? `Pagado${order.method ? ' · ' + order.method : ''}` : 'Pago pendiente'}</span>
                       </div>
                       <ul>
                         {order.items.map((line, i) => (

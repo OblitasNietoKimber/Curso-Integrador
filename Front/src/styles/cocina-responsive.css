@@ -60,6 +60,8 @@
   .ops-stat strong { display: block; font-size: 28px; line-height: 1.2; white-space: nowrap; word-break: normal; }
   .ops-stat-icon { padding: 11px; flex: 0 0 auto; border-radius: 12px; }
   .ops-stat-icon svg { width: 26px; height: 26px; }
+  .kitchen-payment { display: inline-flex; padding: 4px 8px; border-radius: 6px; font-size: 11px; line-height: 1.4; color: #875d1b; background: #fff7e8; }
+  .kitchen-payment[data-paid="true"] { color: #137848; background: #e3f5ec; }
   .ops-stat:first-child .ops-stat-icon { background: #fff0f2; color: #d71f39; }
 
   .kr-incoming-layout, .kr-incoming-main, .kr-times-layout, .anchor-kitchen-history {
