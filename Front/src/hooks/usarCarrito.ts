@@ -65,23 +65,40 @@ export function useCarrito() {
   const [error, setError] = useState<string | null>(null);
   const [mensajeNotificacion, setMensajeNotificacion] = useState<string>('');
 
-  // Sincronizar con el backend al iniciar si hay conectividad
+  // Sincronizar con el backend al iniciar y al cambiar el estado de sesión
   useEffect(() => {
-    const token = obtenerTokenCarrito();
     let activo = true;
 
-    ServicioCarrito.obtenerCarrito(token)
-      .then(datos => {
-        if (activo && datos) {
-          emitirCambio(datos);
-        }
-      })
-      .catch(() => {
-        // En caso de fallo inicial de red, permanece con la copia local
-      });
+    const sincronizarConBackend = () => {
+      const token = obtenerTokenCarrito();
+      ServicioCarrito.obtenerCarrito(token)
+        .then(datos => {
+          if (activo && datos) {
+            emitirCambio(datos);
+          }
+        })
+        .catch(() => {
+          // En caso de fallo inicial de red, permanece con la copia local
+        });
+    };
+
+    sincronizarConBackend();
+
+    const onLogin = () => sincronizarConBackend();
+    const onExpired = () => {
+      localStorage.removeItem(CLAVE_TOKEN_CARRITO);
+      localStorage.removeItem(CLAVE_DATOS_CARRITO);
+      emitirCambio({ ...estadoInicial, id: obtenerTokenCarrito() });
+      sincronizarConBackend();
+    };
+
+    window.addEventListener('lys-login-success', onLogin);
+    window.addEventListener('lys-session-expired', onExpired);
 
     return () => {
       activo = false;
+      window.removeEventListener('lys-login-success', onLogin);
+      window.removeEventListener('lys-session-expired', onExpired);
     };
   }, []);
 

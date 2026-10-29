@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { profilePhoto } from "../../services/profilePhoto";
 import { Icon } from "../../components/Icon";
 import { updateAccount, useAccount } from "./accountStore";
-export function AccountProfileForm({ onNavigate }: { onNavigate: (path: string) => void }) {
+export function AccountProfileForm({ onNavigate, personal = false }: { onNavigate: (path: string) => void; personal?: boolean }) {
   const account = useAccount();
   const [today] = useState(() => new Date().toLocaleDateString("en-CA"));
   const [draft, setDraft] = useState(account.profile);
@@ -200,13 +200,13 @@ export function AccountProfileForm({ onNavigate }: { onNavigate: (path: string) 
               onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
             />
           </label>
-          <button
+          {!personal && (<button
             className="account-text-button"
             type="button"
             onClick={() => onNavigate("/mi-cuenta/notificaciones")}
           >
             Preferencias de comunicación
-          </button>
+          </button>) }
         </details>
       </form>
       {message && <p role="status">{message}</p>}

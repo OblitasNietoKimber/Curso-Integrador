@@ -26,7 +26,7 @@ export function AccountNavigation({
 }) {
   const { profile } = useAccount();
   const { user } = useSession();
-  const sections = user?.role === "cliente" ? accountSections : accountSections.filter(s => s.slug === "seguridad" || s.slug === "cerrar-sesion");
+  const sections = user?.role === "cliente" ? accountSections : accountSections.filter(s => s.slug === "datos" || s.slug === "seguridad" || s.slug === "cerrar-sesion");
   const selected =
     accountSections.find((s) => s.slug === slug) || accountSections[0];
   const navigate = (value: string) =>

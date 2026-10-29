@@ -140,6 +140,58 @@ public class CarritoServicio {
         return CarritoDTO.desdeEntidad(guardado);
     }
 
+    @Transactional
+    public String migrarOFusionar(String origenCarritoId, String destinoUsuarioCarritoId) {
+        if (origenCarritoId == null || origenCarritoId.isBlank()
+                || destinoUsuarioCarritoId == null || destinoUsuarioCarritoId.isBlank()
+                || origenCarritoId.equals(destinoUsuarioCarritoId)) {
+            return destinoUsuarioCarritoId;
+        }
+
+        Optional<Carrito> origenOpt = carritoRepositorio.findById(origenCarritoId);
+        if (origenOpt.isEmpty()) {
+            return destinoUsuarioCarritoId;
+        }
+
+        Carrito origen = origenOpt.get();
+        if (origen.getItems().isEmpty()) {
+            return destinoUsuarioCarritoId;
+        }
+
+        Carrito destino = obtenerOCrear(destinoUsuarioCarritoId);
+
+        for (ItemCarrito itemOrigen : origen.getItems()) {
+            Optional<ItemCarrito> existente = destino.getItems().stream()
+                    .filter(i -> i.getProductoId().equals(itemOrigen.getProductoId()))
+                    .findFirst();
+
+            if (existente.isPresent()) {
+                ItemCarrito i = existente.get();
+                i.setCantidad(Math.min(99, i.getCantidad() + itemOrigen.getCantidad()));
+            } else {
+                ItemCarrito nuevo = ItemCarrito.builder()
+                        .carrito(destino)
+                        .productoId(itemOrigen.getProductoId())
+                        .nombre(itemOrigen.getNombre())
+                        .descripcion(itemOrigen.getDescripcion())
+                        .imagen(itemOrigen.getImagen())
+                        .precioUnitario(itemOrigen.getPrecioUnitario())
+                        .cantidad(itemOrigen.getCantidad())
+                        .build();
+                destino.getItems().add(nuevo);
+            }
+        }
+
+        destino.setFechaActualizacion(LocalDateTime.now());
+        carritoRepositorio.save(destino);
+
+        origen.getItems().clear();
+        origen.setFechaActualizacion(LocalDateTime.now());
+        carritoRepositorio.save(origen);
+
+        return destinoUsuarioCarritoId;
+    }
+
     private Carrito crearNuevoCarrito(String idDeseado) {
         String idFinal = (idDeseado != null && !idDeseado.isBlank()) ? idDeseado : UUID.randomUUID().toString();
         Carrito carrito = Carrito.builder()

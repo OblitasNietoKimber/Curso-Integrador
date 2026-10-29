@@ -54,7 +54,7 @@ class MigracionClientesTest {
         insert.setLong(12, 0);
         insert.executeUpdate();
       }
-      assertEquals(1, Flyway.configure().dataSource(source).load().migrate().migrationsExecuted);
+      assertEquals(2, Flyway.configure().dataSource(source).load().migrate().migrationsExecuted);
       try (Connection db = source.getConnection();
           Statement sql = db.createStatement()) {
         try (ResultSet rows =
