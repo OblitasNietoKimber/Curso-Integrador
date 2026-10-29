@@ -89,6 +89,7 @@ public class CajaServicio {
       PedidoCaja.Linea linea =
           new PedidoCaja.Linea(producto.getNombre(), i.cantidad(), dinero(producto.getPrecio()));
       linea.productoId = producto.getId();
+      linea.imagen = producto.getImagen();
       p.items.add(linea);
     }
     return pedidos.saveAndFlush(p);
@@ -183,6 +184,9 @@ public class CajaServicio {
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido inexistente."));
     check(!o.pagado, "Este pedido ya fue cobrado.");
     check(
+        List.of("Listo", "En camino", "Entregado").contains(o.estado == null ? "" : o.estado),
+        "El pedido todavía está en Cocina. Debe estar listo antes de cobrar.");
+    check(
         List.of("Efectivo", "Tarjeta", "Yape", "Plin", "Transferencia")
             .contains(r.metodo() == null ? "" : r.metodo()),
         "Método de pago inválido.");
@@ -204,6 +208,12 @@ public class CajaServicio {
                 com.LenasLYS.Backend.modelo.Producto.class,
                 linea.productoId,
                 jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (producto == null) {
+          var promocion = em.find(com.LenasLYS.Backend.modelo.Promocion.class, linea.productoId);
+          check(promocion != null && Boolean.TRUE.equals(promocion.getActiva()),
+              "Promoción no disponible: " + linea.producto);
+          continue;
+        }
         check(
             producto != null
                 && Boolean.TRUE.equals(producto.getActivo())
