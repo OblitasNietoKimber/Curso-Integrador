@@ -80,7 +80,8 @@ function CocinaWorkspace({ onNavigate, section }: { onNavigate: (path: string) =
   const complete = orders.filter(o => o.ready && o.accepted);
   const average = complete.length ? Math.round(complete.reduce((sum, o) => sum + kitchenDuration(o), 0) / complete.length) : 0;
   const selected = orders.find(o => o.id === detail);
-  const activeOrders = orders.filter(o => !o.paid);
+  const activeOrders = orders.filter(o => !['Entregado', 'Cancelado'].includes(o.status) &&
+    (!o.paid || ['Recibido', 'En preparación'].includes(o.status)));
   function navigate(path: string) { setMenu(false); onNavigate(path); }
   return <div className="ops-root ops-workspace ops-reference cocina-workspace" data-page={'cocina/' + section} aria-busy={busy || loading}>
     <aside className={'ops-sidebar' + (menu ? ' cocina-menu-open' : '')} aria-label="Menú de Cocina">
@@ -107,7 +108,7 @@ function CocinaWorkspace({ onNavigate, section }: { onNavigate: (path: string) =
           {label:'Tiempo promedio',value:`${average} min`,icon:'clock',tone:'blue'},
         ]}/></div>
         <div inert={busy || undefined}>
-          {section===''?<KitchenBoard orders={activeOrders} target={25} onDetail={o=>setDetail(o.id)} onStatus={(id,s)=>void advance(id,s)} navigate={navigate}/>:section==='pedidos'?<KitchenIncoming orders={activeOrders} target={25} onDetail={o=>setDetail(o.id)} onStatus={(id,s)=>void advance(id,s)}/>:section==='historial'?<KitchenHistory orders={orders} onDetail={o=>setDetail(o.id)}/>:<KitchenTimes orders={activeOrders} target={25} onDetail={o=>setDetail(o.id)} onStatus={(id,s)=>void advance(id,s)}/>}
+          {section===''?<KitchenBoard orders={activeOrders} target={25} onDetail={o=>setDetail(o.id)} onStatus={(id,s)=>void advance(id,s)} navigate={navigate}/>:section==='pedidos'?<KitchenIncoming orders={activeOrders} target={25} onDetail={o=>setDetail(o.id)} onStatus={(id,s)=>void advance(id,s)}/>:section==='historial'?<KitchenHistory orders={orders} onDetail={o=>setDetail(o.id)}/>:<KitchenTimes orders={orders} target={25} onDetail={o=>setDetail(o.id)} onStatus={(id,s)=>void advance(id,s)}/>}
         </div>
       </>}
       {selected && <OrderDetail order={selected} onClose={()=>setDetail(null)}/>}

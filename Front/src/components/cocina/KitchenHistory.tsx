@@ -24,7 +24,7 @@ export function KitchenHistory({
   const [status, setStatus] = useState("Todos");
   const [search, setSearch] = useState("");
   const history = orders.filter((o) =>
-    o.paid || ["Entregado", "Cancelado"].includes(o.status),
+    (o.paid && !['Recibido', 'En preparación'].includes(o.status)) || ["Entregado", "Cancelado"].includes(o.status),
   );
   const filtered = history
     .filter(

@@ -31,7 +31,8 @@ export function KitchenTimes({
         kitchenDay(order.created) === today),
   );
   const active = orders.filter((order) =>
-    ["Recibido", "En preparación", "Listo"].includes(order.status),
+    ["Recibido", "En preparación", "Listo"].includes(order.status) &&
+    (!order.paid || order.status !== 'Listo'),
   );
   const late = active.filter(
     (order) =>
