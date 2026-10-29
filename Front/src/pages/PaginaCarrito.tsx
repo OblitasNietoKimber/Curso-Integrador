@@ -1,4 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { crearPedidoWeb } from '../services/pedidosApi';
+import { EstadoPedido } from '../components/carrito/EstadoPedido';
+import type { Pedido } from '../services/cajaApi';
 import { Icon } from '../components/Icon';
 import { soles } from '../utils/formato';
 import { usarCarrito } from '../hooks/usarCarrito';
@@ -26,6 +29,7 @@ interface DeliveryDraft {
 }
 
 interface ConfirmedReceipt {
+  pedido: Pedido;
   code: string;
   date: string;
   items: ItemCarrito[];
@@ -63,14 +67,6 @@ const suggestions = [
   },
 ];
 
-function generarCodigoPedido(): string {
-  return Math.floor(10000 + Math.random() * 90000).toString();
-}
-
-function obtenerFechaActualIso(): string {
-  return new Date().toISOString();
-}
-
 export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
   const {
     items,
@@ -86,6 +82,9 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
   const { profile, addresses } = useAccount();
 
   const [step, setStep] = useState(0);
+  const [sending, setSending] = useState(false);
+  const sendingLock = useRef(false);
+  const requestId = useRef(crypto.randomUUID());
   const [confirmedReceipt, setConfirmedReceipt] = useState<ConfirmedReceipt | null>(null);
 
   // Datos de entrega
@@ -186,27 +185,40 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
-  function handleConfirmOrder() {
+  async function handleConfirmOrder() {
+    if (sendingLock.current) return;
     if (!user) {
       localStorage.setItem('lys-return-after-login', '/carrito');
       alNavegar('/iniciar-sesion');
       return;
     }
-    const code = generarCodigoPedido();
+    sendingLock.current = true;
+    setSending(true);
+    setErrorPago('');
+    try {
+    const pedido = await crearPedidoWeb({
+      solicitud: requestId.current, cliente: delivery.name, canal: delivery.mode === 'delivery' ? 'Delivery' : 'Recojo',
+      direccion: delivery.mode === 'delivery' ? `${delivery.address}, ${delivery.district}` : delivery.store,
+      telefono: delivery.phone, notas: [delivery.instructions, delivery.reference].filter(Boolean).join(' · '),
+      items: items.map(i => ({ productoId: i.productoId, cantidad: i.cantidad })),
+    });
     const receipt: ConfirmedReceipt = {
-      code,
-      date: obtenerFechaActualIso(),
-      items: [...items],
+      pedido,
+      code: pedido.id,
+      date: pedido.creado!,
+      items: pedido.items.map(i => ({ productoId: i.productoId, nombre: i.producto, imagen: items.find(item => item.productoId === i.productoId)?.imagen || '', precioUnitario: i.precio, cantidad: i.cantidad, subtotal: i.precio * i.cantidad })),
       delivery: { ...delivery },
       method,
-      subtotal: total,
-      shipping: shippingCost,
+      subtotal: pedido.total - (pedido.envio || 0),
+      shipping: pedido.envio || 0,
       discount: 0,
-      total: totalFinal,
+      total: pedido.total,
     };
     setConfirmedReceipt(receipt);
-    vaciar();
+    void vaciar();
     window.scrollTo({ top: 0, behavior: 'instant' });
+    } catch (e) { setErrorPago(e instanceof Error ? e.message : 'No se pudo registrar el pedido.'); }
+    finally { sendingLock.current = false; setSending(false); }
   }
 
   // Si ya se confirmó el pedido, mostramos pantalla de resultado
@@ -233,6 +245,7 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
               <small>El pedido fue enviado a cocina para su preparación inmediata.</small>
             </div>
 
+            <EstadoPedido inicial={confirmedReceipt.pedido}/>
             <div className="checkout-layout">
               <section className="checkout-panel">
                 <div className="checkout-order-code">
@@ -306,7 +319,7 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
                       <span className="checkout-payment-status">
                         {confirmedReceipt.method === 'cash'
                           ? 'Pendiente de cobro al recibir'
-                          : 'Pago confirmado'}
+                          : 'Pendiente de verificación en Caja'}
                       </span>
                     </dd>
                   </div>
@@ -1299,11 +1312,13 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
                 className="primary-button checkout-continue"
                 type="button"
                 onClick={handleConfirmOrder}
+                disabled={sending}
               >
-                Confirmar pedido <Icon name="arrow" />
+                {sending ? 'Registrando pedido…' : 'Confirmar pedido'} <Icon name="arrow" />
               </button>
             )}
 
+            {step === 3 && errorPago && <p role="alert" className="checkout-form-error">{errorPago}</p>}
             <p className="checkout-safe">
               <Icon name="shield" />
               Compra 100% segura y garantizada
