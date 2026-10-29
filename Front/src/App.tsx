@@ -9,7 +9,7 @@ import { PiePagina } from './components/PiePagina';
 import { Header } from './components/Header';
 import Caja from './components/caja/Caja';
 import Cocina from './components/cocina/Cocina';
-
+import { destinoTrasLogin } from './services/destinoSesion';
 import { AuthLayout } from './components/AuthLayout';
 import { NoticeDialog, type Notice } from './components/NoticeDialog';
 import { AccountPage } from './pages/AccountPage';
@@ -35,8 +35,8 @@ export default function App() {
     void refreshSession();
     const success = () => {
       const returnPath = localStorage.getItem('lys-return-after-login');
-      if (returnPath) {
-        localStorage.removeItem('lys-return-after-login');
+      localStorage.removeItem('lys-return-after-login');
+      if (returnPath === '/carrito') {
         history.pushState(null, '', returnPath);
         setRoute(returnPath);
         window.scrollTo(0, 0);
@@ -44,7 +44,7 @@ export default function App() {
       }
       const user = getSessionUser();
       const requested = new URLSearchParams(location.search).get('destino');
-      const destino = user?.role === 'administrador' ? (requested === 'cocina' ? '/cocina' : requested === 'caja' ? '/caja' : '/admin') : user?.role === 'cocina' ? '/cocina' : requested === 'caja' && user?.role === 'caja' ? '/caja' : user?.role === 'cliente' ? '/mi-cuenta' : '/';
+      const destino = destinoTrasLogin(user, requested);
       history.pushState(null, '', destino);
       setRoute(destino);
       window.scrollTo(0, 0);
@@ -83,4 +83,3 @@ export default function App() {
     <NoticeDialog notice={notice} onClose={() => setNotice(null)} />
   </>;
 }
-
