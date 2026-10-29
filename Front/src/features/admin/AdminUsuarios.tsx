@@ -1,0 +1,4 @@
+import { AdminEditor, type Field } from './AdminEditor';
+import { Panel } from './AdminShared';
+const fields: Field[] = [{ key: 'nombre', label: 'Nombre', required: true, max: 120 }, { key: 'email', label: 'Correo', type: 'email', required: true, max: 254 }, { key: 'rol', label: 'Rol', options: ['ADMINISTRADOR', 'CAJA', 'COCINA', 'DELIVERY'] }, { key: 'activo', label: 'Estado', type: 'checkbox' }, { key: 'password', label: 'Contraseña inicial', type: 'password', required: true, max: 72 }];
+export function AdminUsuarios() { return <><AdminEditor title="Usuarios y roles" path="/admin/usuarios" fields={fields} defaults={{ id: '', nombre: '', email: '', rol: 'CAJA', activo: true, password: '' }} readOnlyKeys={['email']}/><Panel title="Roles y permisos"><p>Administrador: gestión del negocio. Caja: ventas y cobros. Cocina y Delivery: cuentas del personal para sus módulos. Los clientes se administran en Clientes.</p></Panel></>; }
