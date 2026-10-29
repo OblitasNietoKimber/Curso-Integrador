@@ -27,8 +27,16 @@ El checkout registra pedidos reales mediante `POST /api/pedidos`, validando
 productos, promociones, cantidades, disponibilidad y precios en el servidor.
 El envío Delivery cuesta S/ 5, como en el checkout existente. La confirmación
 usa el código, la fecha y los importes devueltos por el backend. Reintentar una
-misma solicitud no duplica el pedido. El pago queda pendiente de cobro o
-verificación en Caja; esta implementación no procesa pagos bancarios.
+misma solicitud no duplica el pedido ni el pago.
+
+En este checkout local, Yape, Plin y tarjeta registran automáticamente un pago
+en `caja_pagos` y marcan el pedido como pagado. Efectivo queda pendiente para
+Caja. El backend valida el método y exige una referencia de seis dígitos para
+Yape/Plin; calcula el importe del catálogo y descuenta stock una sola vez. Los
+pagos web no requieren turno abierto ni alteran su efectivo (`turno_id` nulo).
+Esto es un registro local: no se integra una pasarela ni se verifican o ejecutan
+cargos bancarios. Para producción se necesita confirmación del proveedor desde
+el servidor antes de establecer `pagado`.
 
 `GET /api/cocina` devuelve los pedidos. `POST /api/cocina/pedidos/{id}/estado`
 recibe `{ "esperado": "Recibido", "estado": "En preparación" }`.
@@ -49,8 +57,9 @@ visibles. La meta visual es 25 minutos. Componentes en
 Caja solo muestra para cobrar los pedidos listos (también admite los que ya
 están en reparto o entregados). El servidor rechaza cobros de pedidos recibidos
 o en preparación. Las ventas creadas desde Caja también se envían primero a
-Cocina. Los pedidos cobrados dejan el tablero activo y aparecen en el historial
-de Cocina como Cobrados; cobrar no declara que se haya realizado la entrega.
+Cocina. Un pedido pagado sigue visible y puede aceptarse y prepararse; al estar
+listo pasa al historial, sin requerir otro cobro en Caja. El seguimiento del
+cliente muestra pago y preparación por separado. Cobrar no declara la entrega.
 
 La confirmación del cliente muestra el seguimiento y consulta cada 10 segundos
 `GET /api/pedidos/{id}`. Solo el usuario que creó ese pedido puede consultarlo.
