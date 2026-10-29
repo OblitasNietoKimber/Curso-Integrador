@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS configuracion_negocio (
+ id INTEGER PRIMARY KEY,
+ nombre VARCHAR(120) NOT NULL,
+ direccion VARCHAR(255) NOT NULL,
+ telefono VARCHAR(25) NOT NULL,
+ email VARCHAR(254) NOT NULL,
+ ruc VARCHAR(11) NOT NULL,
+ horario VARCHAR(100) NOT NULL
+);

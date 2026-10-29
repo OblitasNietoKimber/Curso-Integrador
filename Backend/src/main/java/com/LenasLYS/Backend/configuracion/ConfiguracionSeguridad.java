@@ -83,6 +83,7 @@ public class ConfiguracionSeguridad {
                     .requestMatchers(
                         HttpMethod.GET,
                         "/api/productos/**",
+                        "/api/imagenes/**",
                         "/api/categorias/**",
                         "/api/promociones/**")
                     .permitAll()

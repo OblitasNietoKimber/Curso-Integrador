@@ -9,9 +9,11 @@ import { PiePagina } from './components/PiePagina';
 import { Header } from './components/Header';
 import Caja from './components/caja/Caja';
 import Cocina from './components/cocina/Cocina';
+
 import { AuthLayout } from './components/AuthLayout';
 import { NoticeDialog, type Notice } from './components/NoticeDialog';
 import { AccountPage } from './pages/AccountPage';
+import { AdminPage } from './pages/AdminPage';
 import { SignInPage } from './pages/SignInPage';
 import { RegisterCard } from './features/auth/RegisterCard';
 import { ResetPasswordCard } from './features/auth/ResetPasswordCard';
@@ -41,17 +43,14 @@ export default function App() {
         return;
       }
       const user = getSessionUser();
-      const canUseCaja = user && ['caja', 'administrador'].includes(user.role);
       const requested = new URLSearchParams(location.search).get('destino');
-      const destino = user && ['cocina', 'administrador'].includes(user.role) && (requested === 'cocina' || user.role === 'cocina') ? '/cocina' : requested === 'caja' && canUseCaja
-        ? '/caja'
-        : user && user.role !== 'cliente' ? '/' : '/mi-cuenta';
+      const destino = user?.role === 'administrador' ? (requested === 'cocina' ? '/cocina' : requested === 'caja' ? '/caja' : '/admin') : user?.role === 'cocina' ? '/cocina' : requested === 'caja' && user?.role === 'caja' ? '/caja' : user?.role === 'cliente' ? '/mi-cuenta' : '/';
       history.pushState(null, '', destino);
       setRoute(destino);
       window.scrollTo(0, 0);
     };
     const expired = () => {
-      if (location.pathname.startsWith('/mi-cuenta') || location.pathname.startsWith('/caja') || location.pathname.startsWith('/cocina')) {
+      if (['/mi-cuenta', '/caja', '/cocina', '/admin'].some(path => location.pathname === path || location.pathname.startsWith(path + '/'))) {
         history.replaceState(null, '', '/iniciar-sesion');
         setRoute('/iniciar-sesion');
       }
@@ -65,7 +64,8 @@ export default function App() {
   }, []);
 
   function navigate(path: string) { history.pushState(null, '', path); setRoute(path.split('?')[0]); window.scrollTo(0, 0); }
-  useEffect(() => { document.title = `${route.startsWith('/cocina') ? 'Cocina' : route.startsWith('/caja') ? 'Caja' : route.startsWith('/mi-cuenta') ? 'Mi cuenta' : route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : route === '/' ? 'Inicio' : route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);
+  useEffect(() => { document.title = `${route.startsWith('/cocina') ? 'Cocina' : route.startsWith('/admin') ? 'Panel de administración' : route.startsWith('/caja') ? 'Caja' : route.startsWith('/mi-cuenta') ? 'Mi cuenta' : route === '/registrarse' ? 'Crear cuenta' : route === '/recuperar-contrasena' ? 'Recuperar contraseña' : route === '/' ? 'Inicio' : route === '/carta' ? 'Carta' : route === '/promociones' ? 'Promociones' : route === '/carrito' ? 'Carrito' : 'Iniciar sesión'} | Leñas y Sabores`; }, [route]);
+  if(route === '/admin' || route.startsWith('/admin/')) return session.loading ? <main className="base-page" role="status">Cargando panel…</main> : session.user ? <AdminPage key={route} route={route} onNavigate={navigate}/> : <main className="base-page"><p>Inicia sesión con una cuenta de administrador.</p><a href="/iniciar-sesion?destino=admin">Iniciar sesión</a></main>;
   if(route === '/caja' || route.startsWith('/caja/')) return <Caja onNavigate={navigate}/>;
   if(route === '/cocina' || route.startsWith('/cocina/')) return <Cocina onNavigate={navigate} route={route}/>;
   const publicPage = ['/', '/carta', '/promociones', '/carrito'].includes(route);
@@ -83,3 +83,4 @@ export default function App() {
     <NoticeDialog notice={notice} onClose={() => setNotice(null)} />
   </>;
 }
+

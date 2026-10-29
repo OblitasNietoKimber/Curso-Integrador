@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CajaAjustes {
+  private final com.LenasLYS.Backend.repositorio.ConfiguracionNegocioRepositorio configuracion;
+  public CajaAjustes(com.LenasLYS.Backend.repositorio.ConfiguracionNegocioRepositorio configuracion){this.configuracion=configuracion;}
   @Value("${app.caja.nombre:Leñas y Sabores}")
   private String nombre;
 
@@ -35,6 +37,7 @@ public class CajaAjustes {
     m.put("open", true);
     m.put("tax", 0);
     m.put("methods", List.of("Efectivo", "Yape", "Plin", "Tarjeta", "Transferencia"));
+    configuracion.findById(1).ifPresent(c->{m.put("name",c.getNombre());m.put("address",c.getDireccion());m.put("phone",c.getTelefono());m.put("email",c.getEmail());m.put("ruc",c.getRuc());m.put("hours",c.getHorario());});
     return m;
   }
 }

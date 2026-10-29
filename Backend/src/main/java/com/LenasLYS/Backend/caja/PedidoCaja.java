@@ -13,6 +13,15 @@ public class PedidoCaja {
   public String id;
 
   public String cliente;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "cliente_id")
+  @com.fasterxml.jackson.annotation.JsonIgnore
+  private com.LenasLYS.Backend.modelo.Cliente perfilCliente;
+
+  public java.util.UUID getClienteId(){return perfilCliente==null?null:perfilCliente.getId();}
+  public void setPerfilCliente(com.LenasLYS.Backend.modelo.Cliente perfil){perfilCliente=perfil;}
+
   public String canal;
   public String mesa;
   public boolean pagado;
