@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 @Entity
+@org.hibernate.annotations.DynamicUpdate
 @Table(name = "caja_pedidos")
 public class PedidoCaja {
   @Id
@@ -15,6 +16,18 @@ public class PedidoCaja {
   public String canal;
   public String mesa;
   public boolean pagado;
+  public String estado = "Recibido";
+  public java.time.Instant aceptado;
+  public java.time.Instant listo;
+  public java.time.Instant entregado;
+  @Column(length = 1000)
+  public String notas = "";
+  @Column(length = 500)
+  public String direccion = "";
+  public String telefono = "";
+  @Column(unique = true, length = 100)
+  public String solicitud;
+  public BigDecimal envio = BigDecimal.ZERO;
   public java.time.Instant creado = java.time.Instant.now();
 
   @ElementCollection(fetch = FetchType.EAGER)
@@ -28,6 +41,7 @@ public class PedidoCaja {
     public String productoId;
     public int cantidad;
     public BigDecimal precio;
+    public String imagen;
 
     public Linea() {}
 
@@ -41,6 +55,6 @@ public class PedidoCaja {
   public BigDecimal getTotal() {
     return items.stream()
         .map(i -> i.precio.multiply(BigDecimal.valueOf(i.cantidad)))
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
+        .reduce(envio == null ? BigDecimal.ZERO : envio, BigDecimal::add);
   }
 }
