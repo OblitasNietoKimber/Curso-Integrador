@@ -197,3 +197,58 @@ Siguiendo la distribución de responsabilidades del equipo:
   - Pasarelas de pago y facturación (`feature/caja`).
   - Autenticación, login, registro y perfiles de usuario (`feature/login`).
   - Paneles administrativos de inventario y gestión (`feature/administracion`).
+
+
+## Administración conectada al catálogo
+
+La ruta `/admin` requiere una sesión con rol `ADMINISTRADOR`.
+El menú incluye Dashboard, Productos, Promociones, Clientes, Usuarios, Pedidos,
+Reportes y Configuración. Inventario queda fuera del panel.
+
+- Productos: crear/editar, activar/desactivar, filtrar, exportar, seleccionar y
+  desactivar varios, subir imágenes PNG/JPG y elegir categorías incluso vacías.
+- Promociones: crear/editar, precios, imagen, insignia, filtros y activación.
+  Se guardan en `promociones`, la misma tabla de la carta y promociones públicas.
+- Clientes: consultar y editar el perfil comercial sin modificar sus credenciales.
+- Usuarios: crear personal con contraseña inicial, asignar roles y activar/desactivar.
+  El administrador no puede desactivar su propia cuenta ni quitarse su rol.
+  Cambiar rol/estado invalida las sesiones existentes de la cuenta afectada.
+- Pedidos: consulta de los pedidos persistidos de Caja, estado de pago, filtros,
+  detalle y exportación. Conserva el flujo de cobros y reembolsos de Caja.
+- Dashboard y Reportes: datos reales de Caja, excluyendo pagos reembolsados.
+  El dashboard resume hoy; reportes filtra fechas en `America/Lima`, presenta
+  ventas, ticket promedio, canales, métodos de pago y productos más vendidos.
+  Permite exportar Excel e imprimir.
+- Configuración: datos del negocio persistidos mediante la migración V6;
+  Caja utiliza los mismos datos al consultar su configuración.
+
+No se copian datos de ejemplo del prototipo al navegador. Si no hay registros,
+los indicadores muestran cero y los listados muestran su estado vacío.
+Los pedidos actuales de Caja no tienen una relación por ID con `clientes`;
+por ello no se atribuye historial de compras por coincidencia de nombres.
+
+### Imágenes
+
+Las imágenes se guardan en `Backend/uploads/catalogo` al ejecutar desde Backend.
+El directorio se excluye de Git y debe conservarse entre ejecuciones o montarse
+como volumen persistente en despliegues. Opcionalmente usar `IMAGENES_DIRECTORIO`
+para cambiarlo. Se aceptan PNG/JPG de hasta 5 MB y 16 megapíxeles. También se
+pueden escribir rutas existentes o URLs HTTPS. No hay nuevas variables obligatorias.
+
+### Verificación
+
+```powershell
+# Desde Front
+npm install
+npm run build
+npm run lint
+
+# Desde Backend: suite nueva de permisos, catálogo y persistencia
+.\mvnw.cmd "-Dtest=AdminIntegracionTest" test
+```
+
+La prueba de navegador realizada durante la implementación usa respuestas de API
+simuladas para verificar las ocho rutas, cinco formularios, carga de imagen, reintento tras error, estados vacíos,
+menú móvil y cálculos sin reembolsos. No sustituye la suite contra Spring Boot. En el entorno de edición
+Maven no pudo descargar `spring-boot-starter-parent:4.1.1` por la restricción de red;
+se deja pendiente ejecutar esta suite en un entorno con Maven Central accesible.
