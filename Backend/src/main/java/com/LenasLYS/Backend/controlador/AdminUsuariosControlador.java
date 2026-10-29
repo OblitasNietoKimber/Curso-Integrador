@@ -17,7 +17,7 @@ public class AdminUsuariosControlador {
  private Vista dto(Usuario u){return new Vista(u.getId(),u.getNombre(),u.getEmail(),u.getRol().name(),u.isActivo());}
  @GetMapping public List<Vista> listar(){return usuarios.findAll().stream().map(this::dto).toList();}
  @PostMapping @Transactional @ResponseStatus(HttpStatus.CREATED) public Vista crear(@RequestBody Cambio r){
- validar(r);if(r.password()==null||r.password().length()<8||r.password().length()>72)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"La contraseña debe tener entre 8 y 72 caracteres.");
+ validar(r);if(r.password()==null||r.password().length()<8||r.password().getBytes(java.nio.charset.StandardCharsets.UTF_8).length>72)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"La contraseña debe tener al menos 8 caracteres y ocupar hasta 72 bytes UTF-8.");
  if(usuarios.existsByEmail(r.email().trim().toLowerCase(Locale.ROOT)))throw new ResponseStatusException(HttpStatus.CONFLICT,"Ese correo ya está registrado.");
  var u=new Usuario();u.setPasswordHash(encoder.encode(r.password()));aplicar(u,r);return dto(usuarios.save(u));}
  @PutMapping("/{id}") @Transactional public Vista editar(@PathVariable UUID id,@RequestBody Cambio r,Principal principal){
