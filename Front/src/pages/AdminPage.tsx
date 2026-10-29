@@ -11,6 +11,7 @@ import '../styles/admin-operations-admin-panels.css';
 import '../styles/admin-operations-dashboard.css';
 import '../styles/admin-prototype-operations.css';
 import '../styles/admin.css';
+import '../styles/admin-management.css';
 export function AdminPage({route,onNavigate}:{route:string;onNavigate:(path:string)=>void}){
  const {user}=useSession();const [menu,setMenu]=useState(false);const [error,setError]=useState('');const [leaving,setLeaving]=useState(false);
  const section=adminSections.find(s=>adminPath(s.slug)===route);
