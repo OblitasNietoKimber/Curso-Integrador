@@ -16,6 +16,7 @@ public class PedidoCaja {
   public String canal;
   public String mesa;
   public boolean pagado;
+  public String metodoPago;
   public String estado = "Recibido";
   public java.time.Instant aceptado;
   public java.time.Instant listo;
