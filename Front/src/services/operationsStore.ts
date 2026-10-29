@@ -272,7 +272,7 @@ export async function loadCaja() {
     settings: { ...settings, ...data.configuracion },
     orders: data.pedidos.map((p) => ({
       id: p.id,
-      customerId: "",
+      customerId: p.clienteId || "",
       customer: p.cliente,
       phone: "",
       email: "",
