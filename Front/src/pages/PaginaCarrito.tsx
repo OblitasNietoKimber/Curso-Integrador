@@ -200,6 +200,8 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
       solicitud: requestId.current, cliente: delivery.name, canal: delivery.mode === 'delivery' ? 'Delivery' : 'Recojo',
       direccion: delivery.mode === 'delivery' ? `${delivery.address}, ${delivery.district}` : delivery.store,
       telefono: delivery.phone, notas: [delivery.instructions, delivery.reference].filter(Boolean).join(' · '),
+      metodo: ({cash: 'Efectivo', yape: 'Yape', plin: 'Plin', card: 'Tarjeta'} as const)[method],
+      referencia: method === 'yape' || method === 'plin' ? approvalCode.trim() : undefined,
       items: items.map(i => ({ productoId: i.productoId, cantidad: i.cantidad })),
     });
     const receipt: ConfirmedReceipt = {
@@ -317,9 +319,9 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
                         }
                       </strong>
                       <span className="checkout-payment-status">
-                        {confirmedReceipt.method === 'cash'
+                        {!confirmedReceipt.pedido.pagado
                           ? 'Pendiente de cobro al recibir'
-                          : 'Pendiente de verificación en Caja'}
+                          : 'Pago digital registrado'}
                       </span>
                     </dd>
                   </div>
@@ -1092,7 +1094,7 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
                   <Icon name="shield" />
                   <div>
                     <strong>Transacción protegida</strong>
-                    <p>Tus pagos se procesan de manera rápida y segura.</p>
+                    <p>En este entorno local, los pagos digitales se registran en el sistema sin efectuar cargos bancarios.</p>
                   </div>
                 </div>
               </section>
@@ -1151,7 +1153,7 @@ export function PaginaCarrito({ alNavegar }: PropiedadesPaginaCarrito) {
                       <p>
                         {method === 'cash'
                           ? 'Pago en efectivo al recibir'
-                          : 'Pago digital verificado'}
+                          : 'Se registrará como pagado al confirmar'}
                       </p>
                       <button
                         className="checkout-text-button"
