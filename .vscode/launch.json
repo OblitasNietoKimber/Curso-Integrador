@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Backend - cargar Backend/.env",
+      "request": "launch",
+      "mainClass": "com.LenasLYS.Backend.BackendApplication",
+      "projectName": "Backend",
+      "cwd": "${workspaceFolder}/Backend",
+      "console": "integratedTerminal"
+    }
+  ]
+}
