@@ -90,6 +90,8 @@ public class ConfiguracionSeguridad {
                     .permitAll()
                     .requestMatchers("/api/caja", "/api/caja/**")
                     .hasAnyRole("CAJA", "ADMINISTRADOR")
+                    .requestMatchers("/api/cocina", "/api/cocina/**")
+                    .hasAnyRole("COCINA", "ADMINISTRADOR")
                     .requestMatchers("/api/admin/**")
                     .hasRole("ADMINISTRADOR")
                     .requestMatchers("/api/**")
