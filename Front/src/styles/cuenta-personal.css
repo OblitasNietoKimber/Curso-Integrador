@@ -1,0 +1,17 @@
+.ops-root .personal-account-trigger { display:flex; align-items:center; gap:12px; width:100%; min-width:0; padding:20px 14px; border:0; border-top:1px solid #dfe5ee; background:white; cursor:pointer; text-align:left; }
+.ops-root .personal-account-trigger .ops-side-avatar { display:grid; place-items:center; flex:0 0 40px; width:40px; height:40px; padding:0; border-radius:50%; background:#ed1747; color:white; }
+.ops-root .personal-account-trigger .ops-side-account-info { flex:1; min-width:0; }
+.ops-root .personal-account-trigger strong { display:block; overflow-wrap:anywhere; }
+.ops-root .personal-account-trigger small { display:block; margin-top:5px; color:#526585; }
+.ops-root .personal-account-trigger .ops-side-account-chevron { width:16px; flex:0 0 16px; color:#8b9ab0; }
+.ops-root .personal-account-mobile { display:grid; place-items:center; flex:0 0 40px; width:40px; height:40px; padding:8px; margin-left:auto; border:1px solid #dfe5ee; border-radius:50%; background:white; color:#d7193f; }
+.ops-root .personal-account-dialog { box-sizing:border-box; width:530px; max-width:calc(100vw - 24px); max-height:calc(100dvh - 24px); overflow-y:auto; border-radius:16px; }
+.ops-root .personal-account-dialog .ops-profile-header { display:flex; align-items:center; gap:16px; }
+.ops-root .personal-account-dialog .ops-profile-user { min-width:0; }
+.ops-root .personal-account-dialog .ops-profile-name { overflow-wrap:anywhere; }
+.ops-root .personal-account-dialog .ops-profile-item { display:flex; align-items:center; gap:16px; width:100%; min-width:0; min-height:64px; text-align:left; }
+.ops-root .personal-account-dialog .ops-profile-item-text { flex:1; min-width:0; }
+.ops-root .personal-account-dialog .personal-account-logout { color:#e21d2e; }
+.ops-root .personal-account-dialog .personal-account-logout strong { color:#e21d2e; }
+.ops-root .personal-account-dialog button:disabled { opacity:.6; cursor:wait; }
+@media(max-width:480px) { .ops-root .personal-account-dialog .ops-profile-card { padding:18px; } .ops-root .personal-account-dialog .ops-profile-header { gap:12px; } .ops-root .personal-account-dialog .ops-profile-name { font-size:20px; } }

@@ -1,0 +1,61 @@
+package com.LenasLYS.Backend.modelo;
+
+import jakarta.persistence.*;
+import java.time.Instant;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Table(name = "usuarios")
+@Getter
+@Setter
+public class Usuario {
+  @Id private UUID id = UUID.randomUUID();
+
+  @Column(nullable = false, length = 120)
+  private String nombre;
+
+  @Column(nullable = false, unique = true, length = 254)
+  private String email;
+
+  @Column(name = "password_hash", length = 100)
+  private String passwordHash;
+
+  @Column(name = "google_sub", unique = true, length = 255)
+  private String googleSub;
+
+  @Column(name = "totp_secret", length = 255)
+  private String totpSecret;
+
+  @Column(name = "totp_counter")
+  private Long totpCounter;
+
+  @Column(name = "totp_recovery", columnDefinition = "text")
+  private String totpRecovery;
+
+  @ManyToOne(fetch = FetchType.EAGER, optional = false)
+  @JoinColumn(name = "id_rol", nullable = false)
+  private RolSistema rolAsignado;
+
+  public Rol getRol() {
+    return Rol.valueOf(rolAsignado.getNombre());
+  }
+
+  @Column(nullable = false)
+  private boolean activo = true;
+
+  @Column(name = "version_sesion", nullable = false)
+  private long versionSesion;
+
+  @Column(nullable = false)
+  private Instant creado = Instant.now();
+
+  public enum Rol {
+    CLIENTE,
+    ADMINISTRADOR,
+    CAJA,
+    COCINA,
+    DELIVERY
+  }
+}

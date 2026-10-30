@@ -1,0 +1,59 @@
+/* El registro comparte el fondo y la composición superpuesta del login. */
+.sign-in-page.register-page {
+  --photo-offset: 0px;
+  min-height: calc(100dvh - 112px);
+}
+.sign-in-page.register-page .hero-background {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  transform: none;
+}
+.sign-in-page.register-page .hero-background img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+}
+.sign-in-page.register-page .hero-layout {
+  align-items: start;
+  min-height: calc(100dvh - 112px);
+}
+.sign-in-page .welcome {
+  align-self: start;
+  padding-top: 0;
+}
+.sign-in-page .welcome-copy {
+  margin-top: 0;
+}
+.sign-in-page.register-page .welcome-copy {
+  width: min(100%, 550px);
+}
+.sign-in-page.register-page .registration-caption {
+  width: min(100%, 480px);
+  margin-top: 8px;
+  font-size: clamp(20px, 2vw, 26px);
+  line-height: 1.2;
+  text-shadow: 0 1px 3px #fff, 0 0 10px #fff;
+}
+@media (min-width: 901px) {
+  .sign-in-page .hero-layout { padding-top: 16px; }
+  .sign-in-page .welcome-copy { margin-top: -6px; }
+}
+@media (min-width: 1800px) {
+  .sign-in-page .welcome { padding-top: 0; }
+  .sign-in-page.register-page .welcome-copy { width: min(100%, 600px); }
+}
+@media (max-width: 900px), (min-width: 901px) and (max-width: 1150px) and (max-aspect-ratio: 3/4) {
+  .sign-in-page.register-page .hero-background img { object-position: center top; }
+  .sign-in-page.register-page .welcome { min-height: clamp(330px, 77vw, 640px); }
+  .sign-in-page.register-page .welcome-copy { width: min(100%, 70vw, 600px); }
+  .sign-in-page.register-page .registration-caption { width: min(100%, 440px); font-size: clamp(20px, 3vw, 26px); }
+}
+@media (max-width: 599px) {
+  .sign-in-page .welcome-copy { margin-top: 0; }
+  .sign-in-page.register-page .welcome-copy { width: min(100%, 76vw); }
+  .sign-in-page.register-page .registration-caption { font-size: 20px; }
+  .sign-in-page.register-page .compact-auth-card .input-field input { font-size: 16px; }
+}

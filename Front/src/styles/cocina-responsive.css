@@ -1,0 +1,220 @@
+/* Kitchen owns its page layout. Shared Caja styles only supply UI primitives. */
+.ops-root.ops-workspace.ops-reference.cocina-workspace[data-page] {
+  --cocina-gap: 20px;
+  font-family: 'DM Sans', Arial, sans-serif;
+
+  .ops-content {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--cocina-gap);
+    min-width: 0;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
+    padding: 28px;
+    background: transparent;
+  }
+  .ops-content > * {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .ops-page-heading { min-height: 0; margin: 0; float: none; }
+  .ops-page-heading h1 { font-size: clamp(25px, 2.2vw, 34px); line-height: 1.2; }
+  .ops-page-heading p { font-size: 14px; line-height: 1.6; margin: 6px 0 0; }
+  .cocina-flow { margin: 0; }
+  .ops-brand img { transform: none; max-width: 100%; object-fit: contain; }
+  .cocina-account-trigger { margin-top: auto; text-align: left; }
+  .ops-workspace-toolbar .cocina-account-mobile { display: none; }
+  .cocina-account-dialog { width: min(530px, calc(100vw - 32px)); max-width: calc(100vw - 32px); border-radius: 16px; }
+  .cocina-account-dialog .ops-profile-item-text { min-width: 0; flex: 1; text-align: left; }
+  .cocina-account-dialog .ops-profile-name { overflow-wrap: anywhere; }
+  .cocina-account-dialog .ops-profile-item { width: 100%; min-height: 64px; }
+  .anchor-kitchen-metrics { display: block; }
+  .ops-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+  }
+  .ops-stat {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: 104px;
+    height: auto;
+    padding: 18px;
+    gap: 14px;
+    background: white;
+    border: 1px solid #e3e8f0;
+    border-radius: 12px;
+  }
+  .ops-stat > div { min-width: 0; }
+  .ops-stat p { font-size: 13px; line-height: 1.4; margin: 0 0 5px; overflow-wrap: normal; }
+  .ops-stat strong { display: block; font-size: 28px; line-height: 1.2; white-space: nowrap; word-break: normal; }
+  .ops-stat-icon { padding: 11px; flex: 0 0 auto; border-radius: 12px; }
+  .ops-stat-icon svg { width: 26px; height: 26px; }
+  .kitchen-payment { display: inline-flex; padding: 4px 8px; border-radius: 6px; font-size: 11px; line-height: 1.4; color: #875d1b; background: #fff7e8; }
+  .kitchen-payment[data-paid="true"] { color: #137848; background: #e3f5ec; }
+  .ops-stat:first-child .ops-stat-icon { background: #fff0f2; color: #d71f39; }
+
+  .kr-incoming-layout, .kr-incoming-main, .kr-times-layout, .anchor-kitchen-history {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+  .kr-toolbar { margin: 0 0 16px; gap: 12px; }
+  .kr-tabs { gap: 8px; flex-wrap: wrap; }
+  .kr-tabs button { min-height: 40px; height: auto; padding: 9px 12px; font-size: 12px; white-space: nowrap; }
+  .kr-toolbar > select { margin-left: auto; }
+  .ops-incoming-search label {
+    display: flex; align-items: center; gap: 10px; padding: 0 12px;
+    background: white; border: 1px solid #dce3ee; border-radius: 10px;
+    margin: 0 0 16px;
+  }
+  .ops-incoming-search input { border: 0; margin: 0; background: transparent; min-width: 0; min-height: 42px; }
+  .kr-incoming-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 18px; }
+  .kr-incoming-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 20px;
+    min-width: 0;
+    background: white;
+    border: 1px solid #dfe6ef;
+    border-radius: 14px;
+  }
+  .ops-incoming-reference {
+    display: flex; flex-direction: row; flex-wrap: wrap; align-items: center;
+    gap: 10px; padding-bottom: 14px; border-bottom: 1px solid #edf0f5;
+  }
+  .ops-incoming-reference > strong { font-size: 15px; line-height: 1.4; overflow-wrap: anywhere; }
+  .ops-incoming-reference time { margin-left: auto; }
+  .ops-incoming-reference small { font-size: 12px; color: #6c7a90; }
+  .ops-incoming-products { display: grid; gap: 14px; }
+  .ops-incoming-products > div { display: flex; align-items: flex-start; gap: 14px; min-width: 0; }
+  .ops-incoming-products > div > div { min-width: 0; flex: 1; }
+  .ops-incoming-products img { flex: 0 0 64px; width: 64px; height: 64px; object-fit: contain; background: #fff6ed; border-radius: 10px; }
+  .ops-incoming-products strong { display: block; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
+  .ops-incoming-products small { display: block; font-size: 12px; line-height: 1.5; color: #768299; }
+  .cocina-incoming-actions {
+    display: flex; flex-direction: row; flex-wrap: wrap; align-items: center;
+    justify-content: flex-end; gap: 10px; margin-top: auto; padding-top: 14px;
+    border-top: 1px solid #edf0f5; min-width: 0;
+  }
+  .cocina-incoming-actions > p { display: flex; gap: 8px; flex: 1 0 100%; min-width: 0; padding: 12px; margin: 0 0 4px; overflow-wrap: anywhere; background: #fff7e8; border-radius: 8px; font-size: 12px; line-height: 1.5; }
+  .cocina-incoming-actions > p strong { display: block; margin-bottom: 4px; color: #875d1b; }
+  .cocina-incoming-actions svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .cocina-incoming-actions button {
+    position: static; display: inline-flex; width: auto; max-width: 100%;
+    min-height: 42px; height: auto; padding: 10px 16px; font-size: 13px;
+    white-space: normal; flex: 0 1 auto; border-radius: 8px;
+  }
+  .cocina-incoming-actions button:not(.ops-primary) { background: white; color: #34455e; border: 1px solid #d8e1ed; }
+
+  .anchor-kitchen-history .cocina-history-filters {
+    display: grid; grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(120px, 1fr)) auto;
+    align-items: end; gap: 14px; padding: 18px; margin: 0 0 18px;
+    border: 1px solid #e3e8f0; border-radius: 12px; background: white;
+  }
+  .anchor-kitchen-history label { display: grid; gap: 6px; font-size: 12px; min-width: 0; }
+  .anchor-kitchen-history .cocina-history-search { display: flex; align-items: center; gap: 10px; padding: 0 12px; border: 1px solid #dce3ee; border-radius: 8px; min-width: 0; width: 100%; align-self: end; }
+  .cocina-history-search svg { width: 18px; height: 18px; flex-shrink: 0; color: #7a879a; }
+  .anchor-kitchen-history :is(input, select) { min-height: 42px; height: 42px; width: 100%; font-size: 13px; }
+  .anchor-kitchen-history .cocina-history-search input { min-width: 0; border: 0; background: transparent; }
+  .anchor-kitchen-history .cocina-history-filters > button { min-height: 42px; height: auto; white-space: nowrap; font-size: 13px; }
+  .anchor-history-table { display: block; max-width: 100%; overflow-x: auto; border: 1px solid #e3e8f0; border-radius: 12px; background: white; }
+  .anchor-history-table table { display: table; width: 100%; min-width: 900px; table-layout: auto; }
+  .anchor-history-table thead { display: table-header-group; }
+  .anchor-history-table tbody { display: table-row-group; }
+  .anchor-history-table tr { display: table-row; }
+  .anchor-history-table :is(td, th) { display: table-cell; padding: 16px; vertical-align: middle; font-size: 13px; }
+  .anchor-history-table :is(th, td:nth-child(4), td:nth-child(5), td:nth-child(6)) { white-space: nowrap; }
+  .anchor-history-mobile { display: none; }
+  .anchor-history-tabs { display: flex; flex-wrap: nowrap; gap: 8px; margin: 0 0 16px; overflow-x: auto; padding-bottom: 4px; }
+  .anchor-history-tabs button { flex: 0 0 auto; min-height: 38px; height: auto; padding: 8px 12px; font-size: 12px; white-space: nowrap; word-break: normal; background: white; color: #526179; border: 1px solid #dce3ee; }
+  .anchor-history-tabs button[aria-pressed="true"] { background: #fff0f2; border-color: #f0bdc5; color: #c71932; }
+
+  .kr-time-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin: 0 0 20px; }
+  .kr-time-panels > section:nth-child(3) { grid-column: 1 / -1; }
+  .kr-times-layout .ops-panel { min-width: 0; padding: 20px; border: 1px solid #e3e8f0; border-radius: 12px; background: white; }
+  .kr-times-layout .ops-panel > header { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .kr-times-layout .ops-panel > header > * { min-width: 0; }
+  .kr-times-layout .ops-panel h2 { font-size: 17px; line-height: 1.4; }
+  .kr-times-layout .ops-panel-title { flex: 1 1 180px; }
+  .kr-times-layout .kr-search { flex: 1 1 240px; margin: 0; }
+  .kr-times-layout .ops-time-filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .kr-times-layout .ops-table-wrap { max-width: 100%; overflow-x: auto; }
+  .kr-alert { flex-wrap: wrap; min-width: 0; border-radius: 10px; }
+  .kr-alert > span { flex: 1 1 160px; }
+  .kr-alert b { margin-left: auto; white-space: nowrap; }
+  .ops-product-time-bars > div { display: grid; grid-template-columns: minmax(0, 1fr) minmax(60px, 1fr) auto; gap: 12px; align-items: center; }
+  .ops-product-time-bars > div > span { min-width: 0; overflow-wrap: anywhere; }
+  .ops-product-time-bars progress { width: 100%; min-width: 0; }
+
+  @media (max-width: 1500px) {
+    .anchor-kitchen-history .cocina-history-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .anchor-kitchen-history .cocina-history-search { grid-column: span 2; }
+  }
+  @media (max-width: 1200px) {
+    .ops-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .kr-incoming-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 900px) {
+    .ops-content { padding: 20px; }
+    .ops-workspace-toolbar { display: flex; position: sticky; top: 0; z-index: 80; background: white; border-bottom: 1px solid #e3e8f0; }
+    .cocina-menu-toggle { display: inline-flex; }
+    .ops-workspace-toolbar .cocina-account-mobile { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; padding: 6px; }
+    .kr-time-panels { grid-template-columns: 1fr; }
+    .kr-time-panels > section:nth-child(3) { grid-column: auto; }
+  }
+  @media (max-width: 700px) {
+    --cocina-gap: 16px;
+    .ops-content { padding: 18px 14px 30px; }
+    .ops-stat { min-height: 100px; padding: 14px; gap: 10px; }
+    .ops-stat p { font-size: 12px; }
+    .ops-stat strong { font-size: 23px; }
+    .ops-stat-icon { padding: 8px; }
+    .ops-stat-icon svg { width: 22px; height: 22px; }
+    .kr-toolbar > select { margin-left: 0; flex: 1 1 160px; }
+    .kr-toolbar > button { flex: 1 1 140px; }
+    .kr-toolbar .kr-tabs { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+    .kr-tabs button { justify-content: center; min-width: 0; }
+    .kr-incoming-card { padding: 16px; }
+    .ops-incoming-reference > strong { flex: 1 1 160px; font-size: 14px; }
+    .ops-incoming-reference small { flex-basis: auto; }
+    .cocina-incoming-actions button { flex: 1 1 130px; padding: 10px; }
+    .anchor-kitchen-history .cocina-history-filters { grid-template-columns: 1fr 1fr; padding: 14px; gap: 12px; }
+    .anchor-kitchen-history .cocina-history-search { grid-column: 1 / -1; }
+    .anchor-history-table { display: none; }
+    .anchor-history-mobile { display: grid; gap: 14px; }
+    .anchor-history-mobile article { background: white; border: 1px solid #e3e8f0; border-radius: 12px; padding: 16px; min-width: 0; }
+    .anchor-history-mobile header { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .anchor-history-mobile header > strong { font-size: 14px; overflow-wrap: anywhere; flex: 1 1 170px; }
+    .anchor-history-lines { margin: 14px 0; font-size: 13px; overflow-wrap: anywhere; }
+    .anchor-history-mobile footer { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; border-top: 1px solid #edf0f5; padding-top: 12px; font-size: 11px; color: #768299; }
+    .anchor-history-mobile footer b { display: block; margin-top: 4px; font-size: 12px; color: #34455e; }
+    .anchor-history-mobile footer button { grid-column: 1 / -1; min-height: 40px; height: auto; font-size: 13px; }
+    .ops-product-time-bars > div { grid-template-columns: minmax(0, 1fr) auto; }
+    .ops-product-time-bars progress { grid-column: 1 / -1; grid-row: 2; }
+    .kr-times-layout .ops-panel { padding: 16px; }
+  }
+  @media (max-width: 380px) {
+    .ops-stat { gap: 8px; padding: 10px; }
+    .ops-stat-icon { padding: 6px; }
+    .ops-stat strong { font-size: 21px; }
+    .ops-workspace-toolbar > span { font-size: 11px; }
+  }
+  @media (max-width: 440px) {
+    .ops-workspace-toolbar { gap: 8px; padding-inline: 12px; }
+    .ops-workspace-toolbar > strong { display: none; }
+    .ops-workspace-toolbar > span { min-width: 0; font-size: 11px; }
+  }
+}
