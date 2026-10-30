@@ -1,12 +1,12 @@
-# Desplegar feature/kitchen en Render y Vercel
+# Desplegar main en Render y Vercel
 
 Backend: Spring Boot en Docker + PostgreSQL de Render. Frontend: Vite en Vercel.
 Estos archivos preparan el despliegue; no crean recursos ni publican el proyecto.
 
 ## 1. Preparar la rama
 
-Los archivos deben estar en GitHub, en `feature/kitchen`, antes de desplegar.
-También deben incluirse las correcciones de pagos que aún estén sin commit.
+Los cambios se preparan en `dev` y se integran a `main` mediante un pull request.
+Render y Vercel deben desplegar desde `main`, una vez publicada la integración.
 No subir `Backend/.env` ni los cambios personales de
 `Backend/src/main/resources/application.properties`.
 
@@ -17,7 +17,7 @@ variables de entorno. No usa el perfil `caja-local` ni crea cuentas de prueba.
 ## 2. Render
 
 1. Conectar `OblitasNietoKimber/Curso-Integrador` y crear un **Blueprint**.
-2. Seleccionar la rama **feature/kitchen** y el archivo **render.yaml** de la raíz.
+2. Seleccionar la rama **main** y el archivo **render.yaml** de la raíz.
 3. Revisar los recursos y planes antes de confirmar. El archivo propone planes
    gratuitos; revisar sus límites y vigencia en Render.
 4. Completar **FRONTEND_URL** con la URL HTTPS de Vercel, sin barra final:
@@ -34,6 +34,8 @@ variables de entorno. No usa el perfil `caja-local` ni crea cuentas de prueba.
 
 El contexto Docker es `Backend`, el archivo es `Backend/Dockerfile`, y la imagen
 usa Java 17. El backend escucha el puerto que Render indica con `PORT`.
+Maven genera `target/app.jar`, que el Dockerfile copia sin depender de la versión
+del proyecto.
 Los despliegues automáticos están desactivados: usar **Manual Deploy** al actualizar.
 
 La base de la nube es independiente de tu PostgreSQL local. Se crearán las tablas
@@ -50,7 +52,7 @@ personal deben asignarse por el procedimiento del proyecto en la base de Render.
 2. Importar el mismo repositorio en Vercel.
 3. Elegir **Root Directory: Front**, framework **Vite** y Node.js **22.x** o **24.x**.
 4. En la configuración Git del proyecto, establecer **Production Branch:
-   feature/kitchen**. Seleccionar la rama al importar no sustituye este ajuste.
+   main**. Seleccionar la rama al importar no sustituye este ajuste.
 5. Configurar **VITE_API_BASE_URL=/api** para Production. No poner la URL de Render
    en esta variable: el proxy de `vercel.json` mantiene las cookies bajo el dominio
    del frontend. No poner contraseñas ni secretos en variables `VITE_*`.

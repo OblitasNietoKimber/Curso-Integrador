@@ -3,7 +3,7 @@ services:
   - type: web
     name: lys-kitchen-api
     runtime: docker
-    branch: feature/kitchen
+    branch: main
     rootDir: Backend
     dockerfilePath: ./Dockerfile
     dockerContext: .
