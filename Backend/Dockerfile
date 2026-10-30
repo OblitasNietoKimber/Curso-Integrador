@@ -11,7 +11,7 @@ FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 RUN groupadd --system lys && useradd --system --gid lys --home-dir /app lys \
     && install -d -o lys -g lys /app/uploads/catalogo
-COPY --from=build --chown=lys:lys /build/target/Backend-0.0.1-SNAPSHOT.jar ./app.jar
+COPY --from=build --chown=lys:lys /build/target/app.jar ./app.jar
 USER lys
 ENV PORT=10000
 ENV JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=65.0 -XX:+ExitOnOutOfMemoryError -Dfile.encoding=UTF-8"
